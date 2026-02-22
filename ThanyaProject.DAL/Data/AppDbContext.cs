@@ -58,14 +58,6 @@ namespace ThanyaProject.DAL.Data
                 .HasForeignKey(x => x.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-
-
-            modelBuilder.Entity<Device>()
-                .HasOne(d => d.User)
-                .WithMany(u => u.Devices)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.NoAction);
-
             modelBuilder.Entity<MedicalRecord>()
                 .HasOne(m => m.User)
                 .WithMany(u => u.MedicalRecords)
@@ -101,6 +93,20 @@ namespace ThanyaProject.DAL.Data
                 .WithMany()
                 .HasForeignKey(n => n.InjuryId)
                 .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Device>()
+                .Property(d => d.Lat)
+                .HasColumnType("decimal(9,6)");
+            modelBuilder.Entity<Device>()
+                .Property(d => d.Long)
+                .HasColumnType("decimal(9,6)");
+            modelBuilder.Entity<Device>()
+                .HasOne(d => d.User)
+                .WithMany(u => u.Devices)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Device>()
+                .HasIndex(d => new { d.UserId, d.DeviceId })
+                .IsUnique();
         }
     }
 }

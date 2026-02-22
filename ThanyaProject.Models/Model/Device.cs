@@ -9,19 +9,17 @@ namespace ThanyaProject.Models.Model
 {
     public class Device
     {
-        [Key]
-        public int DeviceId { get; set; }
-
-        public string DeviceName { get; set; } = null!;
-
-        public string SerialNumber { get; set; } = null!;
-
-        public bool IsActive { get; set; }
-
+        public int Id { get; set; }
+        public string DeviceId { get; set; }
+        public string Name { get; set; }
+        public int Battery { get; set; }
+        public string Status { get; set; }
+        public float Long { get; set; }
+        public float Lat { get; set; }
+        public DateTime LastUpdate { get; set; }
         public int UserId { get; set; }
+        public User User { get; set; }
 
-        public User User { get; set; } = null!;
-       
     }
 }
 

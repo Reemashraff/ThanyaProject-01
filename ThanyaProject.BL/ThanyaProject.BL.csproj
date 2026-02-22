@@ -17,6 +17,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.61.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ThanyaProject.DAL\ThanyaProject.DAL.csproj" />
+    <ProjectReference Include="..\ThanyaProject.Models\ThanyaProject.Models.csproj" />
   </ItemGroup>
 
 </Project>

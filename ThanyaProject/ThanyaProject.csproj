@@ -24,7 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ThanyaProject.BL\ThanyaProject.BL.csproj" />
     <ProjectReference Include="..\ThanyaProject.DAL\ThanyaProject.DAL.csproj" />
+    <ProjectReference Include="..\ThanyaProject.Models\ThanyaProject.Models.csproj" />
   </ItemGroup>
 
 </Project>
