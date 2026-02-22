@@ -29,15 +29,5 @@ namespace ThanyaProject.DAL.Repository
             return await _context.Devices
                 .CountAsync(d => d.UserId == userId);
         }
-
-        Task<List<Device>> IDeviceRepository.GetDevicesByUserIdAsync(int userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<int> IDeviceRepository.GetDeviceCountByUserIdAsync(int userId)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
