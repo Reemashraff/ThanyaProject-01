@@ -31,6 +31,6 @@ namespace ThanyaProject.DAL.Repository.IRepository
         Task<T> GetByIdAsync(int id);
         Task<T> GetDeviceCountByUserIdAsync(int userId);
         Task<IEnumerable<T>> GetDevicesByUserIdAsync(int userId);
-        Task<T> UpdateAsync(int Id, Device devices, int userId);
+        Task<T> UpdateAsync(T entity);
     }
 }

@@ -14,10 +14,12 @@ namespace ThanyaProject.DAL.Repository
     public class Repository<T> : IRepository<T> where T : class
     {
         private readonly DbSet<T> _dbSet;
+        private readonly AppDbContext _context;    
 
-        public Repository(ApplicationDbContext context)
+        public Repository(AppDbContext context) 
         {
             _dbSet = context.Set<T>();
+            _context = context;
         }
 
         public async Task<T> AddAsync(T entity)
@@ -96,10 +98,25 @@ namespace ThanyaProject.DAL.Repository
         {
             return await _dbSet.Where(d => EF.Property<int>(d, "UserId") == userId).ToListAsync();
         }
-        public async Task<T> UpdateAsync(int Id, Devices devices, int userId)
+        public async Task UpdateAsync(T entity)
         {
-            _dbSet.Update(devices);
-            return await Task.FromResult(entity);
+            _context.Set<T>().Update(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        Task<T> IRepository<T>.GetDeviceCountByUserIdAsync(int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<IEnumerable<T>> IRepository<T>.GetDevicesByUserIdAsync(int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<T> IRepository<T>.UpdateAsync(T entity)
+        {
+            throw new NotImplementedException();
         }
     }
 }
