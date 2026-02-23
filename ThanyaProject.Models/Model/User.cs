@@ -23,7 +23,7 @@ namespace ThanyaProject.Models.Model
         [Column(TypeName = "decimal(9,6)")]
         public decimal Longitude { get; set; }
         public string? QRcode { get; set; }
-        public string Role { get; set; }= null!;
+        //public string Role { get; set; }= null!;
         public int Specialty_ID { get; set; }
         public string? Description { get; set; }
         public int Hospital_ID { get; set; }

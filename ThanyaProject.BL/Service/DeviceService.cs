@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ThanyaProject.DAL.Repository.IRepository;
+using ThanyaProject.Models.DTO;
 using ThanyaProject.Models.Model;
 
 namespace ThanyaProject.BL.Service
@@ -17,26 +18,26 @@ namespace ThanyaProject.BL.Service
             return await _repository.GetDevicesByUserIdAsync(userId);
         }
 
-        public async Task<Device> CreateAsync(Device devices, int userId)
+        public async Task<Device> CreateAsync(DeviceCreateDto dto, int userId)
         {
             var count = await _repository.GetDeviceCountByUserIdAsync(userId);
-            var newNumber = count + 1;
 
-            var deviceId = $"D{newNumber.ToString("D3")}";
+            var deviceId = $"D{(count + 1).ToString("D3")}";
 
             var device = new Device
             {
                 DeviceId = deviceId,
                 UserId = userId,
-                Name = devices.Name,
-                Status = devices.Status,
-                Battery = devices.Battery,
-                Lat = devices.Lat,
-                Long = devices.Long,
+                Name = dto.Name,
+                Battery = dto.Battery,
+                Status = "Offline",
+                Lat = 0,
+                Long = 0,
                 LastUpdate = DateTime.UtcNow
             };
 
             await _repository.AddAsync(device);
+
             return device;
         }
 

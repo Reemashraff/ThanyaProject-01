@@ -589,10 +589,6 @@ namespace ThanyaProject.DAL.Migrations
                     b.Property<string>("QRcode")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
