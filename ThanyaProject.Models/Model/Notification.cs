@@ -17,9 +17,13 @@ namespace ThanyaProject.Models.Model
         public string Message { get; set; } = null!;
         public bool IsRead { get; set; } = false;
         public DateTime DateCreated { get; set; }
-
+        public string Type { get; set; } = "emergency";
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
         public User User { get; set; } = null!;
         public InjuryRecords? Injury { get; set; }
+
+
 
     }
 }

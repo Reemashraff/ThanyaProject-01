@@ -19,7 +19,6 @@ namespace ThanyaProject.Controllers
             _service = service;
         }
 
-        // ✅ GET /api/devices
         [HttpGet]
         public async Task<IActionResult> GetMyDevices()
         {
@@ -35,7 +34,6 @@ namespace ThanyaProject.Controllers
             });
         }
 
-        // ✅ POST /api/devices
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Device device)
         {
@@ -51,7 +49,6 @@ namespace ThanyaProject.Controllers
             });
         }
 
-        // ✅ PUT /api/devices/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] Device device)
         {
