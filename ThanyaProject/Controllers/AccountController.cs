@@ -61,7 +61,7 @@ namespace ThanyaProject.Controllers
                 Age = DateTime.Now.Year - model.DateOfBirth.Year,
                 Gender = model.Gender,
                 UserType = 1,
-                Role = roleName
+                //Role = roleName
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);

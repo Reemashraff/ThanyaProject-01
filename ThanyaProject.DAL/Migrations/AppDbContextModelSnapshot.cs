@@ -112,29 +112,43 @@ namespace ThanyaProject.DAL.Migrations
 
             modelBuilder.Entity("ThanyaProject.Models.Model.Device", b =>
                 {
-                    b.Property<int>("DeviceId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DeviceId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("DeviceName")
+                    b.Property<int>("Battery")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Lat")
+                        .HasColumnType("decimal(9,6)");
+
+                    b.Property<decimal>("Long")
+                        .HasColumnType("decimal(9,6)");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SerialNumber")
+                    b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("DeviceId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "DeviceId")
+                        .IsUnique();
 
                     b.ToTable("Devices");
                 });
@@ -563,10 +577,6 @@ namespace ThanyaProject.DAL.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("QRcode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")

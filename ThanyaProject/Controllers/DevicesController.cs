@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using ThanyaProject.BL.Service;
 using ThanyaProject.Models;
+using ThanyaProject.Models.DTO;
 using ThanyaProject.Models.Model;
 
 namespace ThanyaProject.Controllers
@@ -19,7 +20,7 @@ namespace ThanyaProject.Controllers
             _service = service;
         }
 
-        // ✅ GET /api/devices
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetMyDevices()
         {
@@ -34,24 +35,22 @@ namespace ThanyaProject.Controllers
                 data = devices
             });
         }
-
-        // ✅ POST /api/devices
+        [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Device device)
+        public async Task<IActionResult> Create([FromBody] DeviceCreateDto dto)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var userId = int.Parse(User.FindFirst("sub")!.Value);
 
-            //var result = await _service.CreateAsync(device, userId);
+            var result = await _service.CreateAsync(dto, userId);
 
             return Ok(new
             {
                 status = "success",
                 message = "Device created successfully",
-                //data = result
+                data = result
             });
         }
 
-        // ✅ PUT /api/devices/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] Device device)
         {
