@@ -12,8 +12,8 @@ using ThanyaProject.DAL.Data;
 namespace ThanyaProject.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260223011447_init")]
-    partial class init
+    [Migration("20260224152446_addsos")]
+    partial class addsos
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -347,7 +347,17 @@ namespace ThanyaProject.DAL.Migrations
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
 
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
+
                     b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
