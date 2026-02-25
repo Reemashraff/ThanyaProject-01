@@ -4,27 +4,64 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ThanyaProject.BL.Service.IService;
+using ThanyaProject.DAL.Repository.IRepository;
+using ThanyaProject.Models.DTO;
 
 namespace ThanyaProject.BL.Service
 {
     public class DashBoardService: IDashBoardService
     {
-        public async Task<object> GetDashboardAsync()
+        private readonly IDeviceRepository _deviceRepository;
+
+        public DashBoardService(IDeviceRepository deviceRepository)
         {
-            var devices = await _repository.GetAllAsync();
+            _deviceRepository = deviceRepository;
+        }
 
-            var total = devices.Count;
-            var online = devices.Count(d => d.Status == "Online");
-            var offline = devices.Count(d => d.Status == "Offline");
-            var avgBattery = total > 0 ? devices.Average(d => d.Battery) : 0;
+        public async Task<UserDashboardDto> GetUserDashboardAsync(int userId)
+        {
+            var devices = await _deviceRepository.GetDevicesByUserIdAsync(userId);
 
-            return new
+            return new UserDashboardDto
             {
-                totalDevices = total,
-                onlineDevices = online,
-                offlineDevices = offline,
-                averageBattery = avgBattery
+                TotalDevices = devices.Count,
+                OnlineDevices = devices.Count(d => d.Status == "Online"),
+                OfflineDevices = devices.Count(d => d.Status == "Offline"),
+                Devices = devices.Select(d => new DevicrDashboardDto
+                {
+                    DeviceId = d.DeviceId,
+                    Name = d.Name,
+                    Battery = d.Battery,
+                    Status = d.Status,
+                    Lat = d.Lat,
+                    Long = d.Long,
+                    LastUpdate = d.LastUpdate
+                }).ToList()
+            };
+        }
+        public async Task<AdminDashboardDto> GetAdminDashboardAsync()
+        {
+            var devices = await _deviceRepository.GetAllAsync();
+
+            var deviceList = devices.ToList();
+
+            return new AdminDashboardDto
+            {
+                TotalDevices = deviceList.Count,
+                OnlineDevices = deviceList.Count(d => d.Status == "Online"),
+                OfflineDevices = deviceList.Count(d => d.Status == "Offline"),
+                Devices = deviceList.Select(d => new DevicrDashboardDto
+                {
+                    DeviceId = d.DeviceId,
+                    Name = d.Name,
+                    Battery = d.Battery,
+                    Status = d.Status,
+                    Lat = d.Lat,
+                    Long = d.Long,
+                    LastUpdate = d.LastUpdate
+                }).ToList()
             };
         }
     }
 }
+

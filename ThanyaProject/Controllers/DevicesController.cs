@@ -85,21 +85,6 @@ namespace ThanyaProject.Controllers
             });
         }
         #endregion
-        #region DashBoard
-        // Admin بس يشوف كل الداتا
-        [Authorize(Roles = "Admin")]
-        [HttpGet("dashboard")]
-        public async Task<IActionResult> Dashboard()
-        {
-            var data = await _service.GetDashboardAsync();
-
-            return Ok(new
-            {
-                status = "success",
-                data = data
-            });
-        }
-        #endregion
-
+     
     }
 }

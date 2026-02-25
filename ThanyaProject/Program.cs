@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using ThanyaProject.BL.Service;
+using ThanyaProject.BL.Service.IService;
 using ThanyaProject.DAL.Data;
 using ThanyaProject.DAL.Repository;
 using ThanyaProject.DAL.Repository.IRepository;
@@ -32,6 +33,7 @@ builder.Services.AddIdentity<User, Role>(options =>
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
+builder.Services.AddScoped<IDashBoardService,DashBoardService>();
 
 var jwtSettings = builder.Configuration.GetSection("JWT");
 var key = Encoding.UTF8.GetBytes(jwtSettings.GetValue<string>("Key"));
