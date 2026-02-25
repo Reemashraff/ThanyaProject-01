@@ -36,10 +36,10 @@ namespace ThanyaProject.Controllers
             });
         }
         [Authorize]
-        [HttpPost]
+        [HttpPost("Api/CreateDevice")]
         public async Task<IActionResult> Create([FromBody] DeviceCreateDto dto)
         {
-            var userId = int.Parse(User.FindFirst("sub")!.Value);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             var result = await _service.CreateAsync(dto, userId);
 
@@ -52,7 +52,7 @@ namespace ThanyaProject.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] Device device)
+        public async Task<IActionResult> Update(int id, [FromBody] DeviceCreateDto device)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
@@ -65,6 +65,23 @@ namespace ThanyaProject.Controllers
             {
                 status = "success",
                 message = "Device updated successfully"
+            });
+        }
+        [Authorize(Roles = "User")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+            var result = await _service.DeleteAsync(id, userId);
+
+            if (!result)
+                return NotFound(new { status = "error", message = "Device not found" });
+
+            return Ok(new
+            {
+                status = "success",
+                message = "Device deleted successfully"
             });
         }
     }

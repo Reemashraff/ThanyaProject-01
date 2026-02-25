@@ -2,8 +2,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
+using ThanyaProject.BL.Service;
 using ThanyaProject.DAL.Data;
+using ThanyaProject.DAL.Repository;
+using ThanyaProject.DAL.Repository.IRepository;
 using ThanyaProject.Models.Model;
 using ThanyaProject.Services;
 
@@ -24,11 +28,14 @@ builder.Services.AddIdentity<User, Role>(options =>
 .AddDefaultTokenProviders();
 
 
-
+#region Dependency Injection
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<IDeviceService, DeviceService>();
+builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 
 var jwtSettings = builder.Configuration.GetSection("JWT");
 var key = Encoding.UTF8.GetBytes(jwtSettings.GetValue<string>("Key"));
+#endregion
 
 
 builder.Services.AddAuthentication(options =>
@@ -48,6 +55,14 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSettings.GetValue<string>("Audience"),
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine(context.Exception.ToString());
+            return Task.CompletedTask;
+        }
+    };
 });
 
 
@@ -55,12 +70,31 @@ builder.Services.AddControllers();
 
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(options =>
 {
-    c.MapType<DateTime>(() => new Microsoft.OpenApi.Models.OpenApiSchema
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Type = "string",
-        Format = "date"
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter Bearer token"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
     });
 });
 

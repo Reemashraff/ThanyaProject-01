@@ -10,9 +10,13 @@ using ThanyaProject.Models.Model;
 
 namespace ThanyaProject.BL.Service
 {
-    public class DeviceService
+    public class DeviceService : IDeviceService
     {
         public readonly IDeviceRepository _repository;
+        public DeviceService(IDeviceRepository repository)
+        {
+            _repository = repository;
+        }
         public async Task<List<Device>> GetDevicesByUserIdAsync(int userId)
         {
             return await _repository.GetDevicesByUserIdAsync(userId);
@@ -41,7 +45,7 @@ namespace ThanyaProject.BL.Service
             return device;
         }
 
-        public async Task<bool> UpdateAsync(int id, Device device, int userId)
+        public async Task<bool> UpdateAsync(int id, DeviceCreateDto device, int userId)
         {
             var existing = await _repository.GetByIdAsync(id);
 
@@ -49,13 +53,24 @@ namespace ThanyaProject.BL.Service
                 return false;
 
             existing.Name = device.Name;
-            existing.Status = device.Status;
+            //existing.Status = device.Status;
             existing.Battery = device.Battery;
-            existing.Lat = device.Lat;
-            existing.Long = device.Long;
+            //existing.Lat = device.Lat;
+            //existing.Long = device.Long;
             existing.LastUpdate = DateTime.UtcNow;
 
             await _repository.UpdateAsync(existing);
+
+            return true;
+        }
+        public async Task<bool> DeleteAsync(int Decviceid, int userId)
+        {
+            var device = await _repository.GetByIdAsync(Decviceid);
+
+            if (device == null || device.UserId != userId)
+                return false;
+
+            await _repository.DeleteAsync(device);
 
             return true;
         }

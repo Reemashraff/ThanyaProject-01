@@ -25,9 +25,9 @@ namespace ThanyaProject.DAL.Repository
         public async Task<T> AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
+            await _context.SaveChangesAsync();
             return entity;
         }
-
         public async Task<IEnumerable<T>> AddRangeAsync(IEnumerable<T> entities)
         {
             await _dbSet.AddRangeAsync(entities);
@@ -100,24 +100,15 @@ namespace ThanyaProject.DAL.Repository
         }
         public async Task UpdateAsync(T entity)
         {
-            _context.Set<T>().Update(entity);
+            _dbSet.Update(entity);
+            await _context.SaveChangesAsync();
+        }
+        public async Task DeleteAsync(T entity)
+        {
+            _dbSet.Remove(entity);
             await _context.SaveChangesAsync();
         }
 
-        Task<T> IRepository<T>.GetDeviceCountByUserIdAsync(int userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<IEnumerable<T>> IRepository<T>.GetDevicesByUserIdAsync(int userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<T> IRepository<T>.UpdateAsync(T entity)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
 

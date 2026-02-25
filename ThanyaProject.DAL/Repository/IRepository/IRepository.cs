@@ -29,8 +29,9 @@ namespace ThanyaProject.DAL.Repository.IRepository
 
         Task<bool> AnyAsync(Expression<Func<T, bool>> filter = null);
         Task<T> GetByIdAsync(int id);
-        Task<T> GetDeviceCountByUserIdAsync(int userId);
-        Task<IEnumerable<T>> GetDevicesByUserIdAsync(int userId);
-        Task<T> UpdateAsync(T entity);
+        Task<int> GetDeviceCountByUserIdAsync(int userId);
+        Task<List<T>> GetDevicesByUserIdAsync(int userId);
+        Task UpdateAsync(T entity);
+        Task DeleteAsync(T entity);
     }
 }
