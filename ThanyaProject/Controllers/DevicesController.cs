@@ -14,14 +14,14 @@ namespace ThanyaProject.Controllers
     public class DevicesController : ControllerBase
     {
         private readonly IDeviceService _service;
-
+        #region Devices
         public DevicesController(IDeviceService service)
         {
             _service = service;
         }
 
         [Authorize]
-        [HttpGet]
+        [HttpGet("GETDevices")]
         public async Task<IActionResult> GetMyDevices()
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
@@ -36,7 +36,7 @@ namespace ThanyaProject.Controllers
             });
         }
         [Authorize]
-        [HttpPost("Api/CreateDevice")]
+        [HttpPost("CreateDevice")]
         public async Task<IActionResult> Create([FromBody] DeviceCreateDto dto)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
@@ -51,7 +51,7 @@ namespace ThanyaProject.Controllers
             });
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("UpateDevice{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] DeviceCreateDto device)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
@@ -84,5 +84,22 @@ namespace ThanyaProject.Controllers
                 message = "Device deleted successfully"
             });
         }
+        #endregion
+        #region DashBoard
+        // Admin بس يشوف كل الداتا
+        [Authorize(Roles = "Admin")]
+        [HttpGet("dashboard")]
+        public async Task<IActionResult> Dashboard()
+        {
+            var data = await _service.GetDashboardAsync();
+
+            return Ok(new
+            {
+                status = "success",
+                data = data
+            });
+        }
+        #endregion
+
     }
 }
