@@ -35,6 +35,7 @@ namespace ThanyaProject.Controllers
                 data = devices
             });
         }
+
         [Authorize]
         [HttpPost("CreateDevice")]
         public async Task<IActionResult> Create([FromBody] DeviceCreateDto dto)
