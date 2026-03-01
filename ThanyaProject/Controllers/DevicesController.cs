@@ -67,7 +67,7 @@ namespace ThanyaProject.Controllers
                 message = "Device updated successfully"
             });
         }
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
