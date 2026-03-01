@@ -17,10 +17,31 @@ namespace ThanyaProject.Controllers
         {
             _storeService = storeService;
         }
+        #region Products
 
         [Authorize(Roles ="Admin")]
         [HttpPost("CreateProduct")]
+        public async Task<IActionResult> CreateProduct(ProductDto dto)
+        {
+            await _storeService.CreateProductAsync(dto);
+            return Ok(new { message = "Product created successfully" });
+        }
 
+        [Authorize(Roles = "Admin")]
+        [HttpPut("UpdateProduct")]
+        public async Task<IActionResult> UpdateProduct(int id, ProductDto dto)
+        {
+            await _storeService.UpdateProductAsync(id, dto);
+            return Ok(new { message = "Product updated successfully" });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("admin/products/{id}")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            await _storeService.DeleteProductAsync(id);
+            return Ok(new { message = "Product deleted successfully" });
+        }
 
         [HttpGet("products")]
         public async Task<IActionResult> GetProducts()
@@ -39,7 +60,8 @@ namespace ThanyaProject.Controllers
             return Ok(product);
         }
 
-
+        #endregion
+        #region Orders
         [Authorize]
         [HttpPost("orders")]
         public async Task<IActionResult> CreateOrder(CreatOrderDto dto)
@@ -90,5 +112,6 @@ namespace ThanyaProject.Controllers
 
             return Ok(order);
         }
+        #endregion 
     }
 }

@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ThanyaProject.Models.Enum;
 
 namespace ThanyaProject.Models.Model
 {
@@ -20,11 +21,11 @@ namespace ThanyaProject.Models.Model
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalPrice { get; set; } = 0;
 
-        public string Status { get; set; } = "Pending";
+        public OrderStatus Status { get; set; } = OrderStatus.Pending;
 
         public string? DeliveryAddress { get; set; }
 
-        public string PaymentMethod { get; set; } = "Cash";
+        public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Cash;
 
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }

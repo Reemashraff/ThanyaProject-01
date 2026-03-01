@@ -32,8 +32,12 @@ builder.Services.AddIdentity<User, Role>(options =>
 #region Dependency Injection
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IDeviceService, DeviceService>();
-builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IDashBoardService,DashBoardService>();
+builder.Services.AddScoped<IStoreService, StoreService>();
+builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IProductRepository,ProuctRepository>();
+
 
 var jwtSettings = builder.Configuration.GetSection("JWT");
 var key = Encoding.UTF8.GetBytes(jwtSettings.GetValue<string>("Key"));

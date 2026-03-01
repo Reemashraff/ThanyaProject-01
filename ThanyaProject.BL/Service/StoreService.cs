@@ -21,7 +21,41 @@ namespace ThanyaProject.BL.Service
             _productRepo = productRepo;
             _orderRepo = orderRepo;
         }
+        public async Task CreateProductAsync(ProductDto dto)
+        {
+            var product = new Product
+            {
+                Name = dto.Name,
+                Price = dto.Price,
+                Stock = dto.Stock,
+                Description = dto.Description
+            };
 
+            await _productRepo.AddAsync(product);
+        }
+        public async Task UpdateProductAsync(int id, ProductDto dto)
+        {
+            var product = await _productRepo.GetByIdAsync(id);
+
+            if (product == null)
+                throw new Exception("Product not found");
+
+            product.Name = dto.Name;
+            product.Description = dto.Description;
+            product.Stock = dto.Stock;
+            product.Price = dto.Price;
+
+            await _productRepo.UpdateAsync(product);
+        }
+        public async Task DeleteProductAsync(int id)
+        {
+            var product = await _productRepo.GetByIdAsync(id);
+
+            if (product == null)
+                throw new Exception("Product not found");
+
+            await _productRepo.DeleteAsync(product);
+        }
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
             => await _productRepo.GetAllAsync();
 
