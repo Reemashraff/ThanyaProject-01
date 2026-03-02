@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ThanyaProject.Models.DTO;
+using ThanyaProject.Models.Enum;
 using ThanyaProject.Models.Model;
 
 namespace ThanyaProject.BL.Service.IService
@@ -18,7 +19,7 @@ namespace ThanyaProject.BL.Service.IService
         Task<string> CreateOrderAsync(int userId, CreatOrderDto dto);
         Task<IEnumerable<Order>> GetUserOrdersAsync(int userId);
         Task<IEnumerable<Order>> GetAllOrdersAsync();
-        Task UpdateOrderStatusAsync(int orderId, string status);
+        Task UpdateOrderStatusAsync(int orderId, OrderStatus status);
         Task<Order?> GetOrderDetailsAsync(int orderId, int userId, bool isAdmin);
         Task CancelOrderAsync(int orderId, int userId, bool isAdmin);
 

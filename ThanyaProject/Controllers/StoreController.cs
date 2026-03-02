@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using ThanyaProject.BL.Service.IService;
 using ThanyaProject.Models.DTO;
+using ThanyaProject.Models.Enum;
 
 namespace ThanyaProject.Controllers
 {
@@ -94,7 +95,7 @@ namespace ThanyaProject.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("admin/orders/{id}")]
-        public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] string status)
+        public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] OrderStatus status)
         {
             await _storeService.UpdateOrderStatusAsync(id, status);
 

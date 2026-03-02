@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ThanyaProject.BL.Service.IService;
 using ThanyaProject.DAL.Repository.IRepository;
 using ThanyaProject.Models.DTO;
+using ThanyaProject.Models.Enum;
 using ThanyaProject.Models.Model;
 
 namespace ThanyaProject.BL.Service
@@ -69,7 +70,7 @@ namespace ThanyaProject.BL.Service
                 UserId = userId,
                 DeliveryAddress = dto.DeliveryAddress,
                 PaymentMethod = dto.PaymentMethod,
-                Status = "Pending"
+                Status = OrderStatus.Pending
             };
 
             decimal total = 0;
@@ -109,9 +110,10 @@ namespace ThanyaProject.BL.Service
         public async Task<IEnumerable<Order>> GetAllOrdersAsync()
             => await _orderRepo.GetAllAsync();
 
-        public async Task UpdateOrderStatusAsync(int orderId, string status)
+        public async Task UpdateOrderStatusAsync(int orderId, OrderStatus status)
         {
             var order = await _orderRepo.GetByIdAsync(orderId);
+
             if (order == null)
                 throw new Exception("Order not found");
 
@@ -141,7 +143,7 @@ namespace ThanyaProject.BL.Service
             if (!isAdmin && order.UserId != userId)
                 throw new Exception("Unauthorized");
 
-            if (order.Status == "Paid" || order.Status == "Delivered")
+            if (order.Status == OrderStatus.Paid ||order.Status == OrderStatus.Delivered)
                 throw new Exception("Cannot cancel this order");
 
             foreach (var item in order.OrderItems)
@@ -153,7 +155,7 @@ namespace ThanyaProject.BL.Service
                 }
             }
 
-            order.Status = "Cancelled";
+           order.Status = OrderStatus.Cancelled;
 
             await _orderRepo.UpdateAsync(order);
         }
