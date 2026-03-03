@@ -8,7 +8,7 @@ namespace ThanyaProject.Models.DTO
 {
     public class LocationDto
     {
-        public float Long { get; set; }
-        public float Lat { get; set; }
+        public decimal Long { get; set; }
+        public decimal Lat { get; set; }
     }
 }
