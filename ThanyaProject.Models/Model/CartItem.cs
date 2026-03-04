@@ -16,5 +16,7 @@ namespace ThanyaProject.Models.Model
         public User User { get; set; }
         public int CardId { get; set; }
         public Cards Cards { get; set; }
+        public int PackageId { get; set; }
+        public Pachage Package { get; set; }
     }
 }

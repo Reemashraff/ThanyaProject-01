@@ -14,6 +14,8 @@ namespace ThanyaProject.Models.Model
 
         public int ProductId { get; set; }
         public Product Product { get; set; } = null!;
+        public int? PackageId { get; set; }
+        public Pachage Package { get; set; }
 
         public int Quantity { get; set; }
         [Column(TypeName = "decimal(18,2)")]

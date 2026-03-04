@@ -16,7 +16,7 @@ namespace ThanyaProject.DAL.Repository
 
         public ProuctRepository(AppDbContext context) : base(context)
         {
-            context = _context;
+            _context = context;
         }
 
     }

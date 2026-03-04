@@ -1,10 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System.Security.Claims;
+using ThanyaProject.BL.Service;
 using ThanyaProject.BL.Service.IService;
 using ThanyaProject.Models.DTO;
 using ThanyaProject.Models.Enum;
+using ThanyaProject.Models.Model;
+using Microsoft.Extensions.Options;
+using ThanyaProject.Setting;
 
 namespace ThanyaProject.Controllers
 {
@@ -13,14 +20,24 @@ namespace ThanyaProject.Controllers
     public class StoreController : ControllerBase
     {
         private readonly IStoreService _storeService;
+        private readonly IStripeService _stripeService;
+        private readonly StripeSetting _stripeOptions;
+        private readonly UserManager<User> _userManager;
 
-        public StoreController(IStoreService storeService)
+        public StoreController(
+            IStoreService storeService,
+            IStripeService stripeService,
+            IOptions<StripeSetting> stripeOptions,
+            UserManager<User> userManager)
         {
-            _storeService = storeService;
+           _storeService = storeService;
+           _stripeService = stripeService;
+           _stripeOptions = stripeOptions.Value;  
+           _userManager = userManager;
         }
-        #region Products
+    #region Products
 
-        [Authorize(Roles ="Admin")]
+    [Authorize(Roles ="Admin")]
         [HttpPost("CreateProduct")]
         public async Task<IActionResult> CreateProduct(ProductDto dto)
         {
@@ -45,10 +62,17 @@ namespace ThanyaProject.Controllers
         }
 
         [HttpGet("products")]
-        public async Task<IActionResult> GetProducts()
+        public async Task<IActionResult> GetAllProducts()
         {
             var products = await _storeService.GetAllProductsAsync();
-            return Ok(products);
+
+            var response = new ProductResponse
+            {
+                Status = "success",
+                Products = products
+            };
+
+            return Ok(response);
         }
 
         [HttpGet("products/{id}")]
@@ -56,23 +80,31 @@ namespace ThanyaProject.Controllers
         {
             var product = await _storeService.GetProductByIdAsync(id);
             if (product == null)
-               return NotFound();
+                return NotFound(new
+                {
+                    status = "fail",
+                    message = "Product not found"
+                });
 
-            return Ok(product);
+            return Ok(new
+            {
+                status = "success",
+                product = product
+            });
         }
 
         #endregion
         #region Orders
-        [Authorize]
-        [HttpPost("orders")]
-        public async Task<IActionResult> CreateOrder(CreatOrderDto dto)
-        {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        //[Authorize]
+        //[HttpPost("orders")]
+        //public async Task<IActionResult> CreateOrder(CreatOrderDto dto)
+        //{
+        //    var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-            var result = await _storeService.CreateOrderAsync(userId, dto);
+        //    var result = await _storeService.CreateOrderAsync(userId, dto);
 
-            return Ok(new { message = result });
-        }
+        //    return Ok(new { message = result });
+        //}
 
         [Authorize]
         [HttpGet("orders")]
@@ -93,15 +125,6 @@ namespace ThanyaProject.Controllers
             return Ok(orders);
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpPut("admin/orders/{id}")]
-        public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] OrderStatus status)
-        {
-            await _storeService.UpdateOrderStatusAsync(id, status);
-
-            return Ok(new { message = "Order status updated" });
-        } 
-
         [Authorize]
         [HttpGet("orders/{id}")]
         public async Task<IActionResult> GetOrderDetails(int id)
@@ -112,6 +135,76 @@ namespace ThanyaProject.Controllers
             var order = await _storeService.GetOrderDetailsAsync(id, userId, isAdmin);
 
             return Ok(order);
+        }
+        [HttpPost]
+        [HttpPost("Checkout")]
+        [Authorize]
+        public async Task<IActionResult> Checkout()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var orderId = await _storeService.CreateOrderFromCartAsync(userId);
+
+            var order = await _storeService.GetOrderDetailsAsync(
+                int.Parse(orderId),
+                userId,
+                User.IsInRole("Admin")
+            );
+
+            var successUrl = Url.Action("ConfirmOrder", "Store",
+                new { orderId = orderId },
+                Request.Scheme);
+
+            var sessionUrl = await _stripeService.CreateCheckoutSession(order.OrderItems, successUrl);
+
+            return Ok(new
+            {
+                status = "success",
+                sessionUrl = sessionUrl
+            });
+        }
+
+        [HttpGet("ConfirmOrder")]
+        public async Task<IActionResult> ConfirmOrder(int orderId)
+        {
+            await _storeService.ConfirmOrderAsync(orderId);
+
+            return Ok(new
+            {
+                status = "success",
+                message = "Payment confirmed and order completed"
+            });
+        }
+        #endregion
+        #region CartItem
+        [Authorize]
+        [HttpDelete("cart/{productId}")]
+        public async Task<IActionResult> RemoveFromCart(int productId)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            await _storeService.RemoveFromCartAsync(userId, productId);
+
+            return Ok(new
+            {
+                status = "success",
+                message = "Product removed from cart"
+            });
+        }
+
+        [Authorize]
+        [HttpDelete("cart")]
+        public async Task<IActionResult> ClearCart()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            await _storeService.ClearCartAsync(userId);
+
+            return Ok(new
+            {
+                status = "success",
+                message = "Cart cleared successfully"
+            });
         }
         #endregion 
     }

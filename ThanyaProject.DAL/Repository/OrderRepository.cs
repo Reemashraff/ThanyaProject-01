@@ -20,8 +20,19 @@ namespace ThanyaProject.DAL.Repository
         public async Task<List<Order>> GetUserOrdersAsync(int userId)
         {
             return await _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
                 .Where(o => o.UserId == userId)
+                .AsNoTracking()
                 .ToListAsync();
+        }
+        public async Task<Order?> GetOrderWithDetailsAsync(int id)
+        {
+            return await _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Package)
+                        .ThenInclude(p => p.Product)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
         }
 
     }

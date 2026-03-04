@@ -15,12 +15,15 @@ namespace ThanyaProject.BL.Service
     {
         private readonly IProductRepository _productRepo;
         private readonly IOrderRepository _orderRepo;
+        private readonly ICartItemRepository _cartRepo;
 
         public StoreService(IProductRepository productRepo,
-                            IOrderRepository orderRepo)
+                            IOrderRepository orderRepo,
+                            ICartItemRepository cartRepo)
         {
             _productRepo = productRepo;
             _orderRepo = orderRepo;
+            _cartRepo = cartRepo;
         }
         public async Task CreateProductAsync(ProductDto dto)
         {
@@ -57,51 +60,132 @@ namespace ThanyaProject.BL.Service
 
             await _productRepo.DeleteAsync(product);
         }
-        public async Task<IEnumerable<Product>> GetAllProductsAsync()
-            => await _productRepo.GetAllAsync();
-
-        public async Task<Product?> GetProductByIdAsync(int id)
-            => await _productRepo.GetByIdAsync(id);
-
-        public async Task<string> CreateOrderAsync(int userId, CreatOrderDto dto)
+        public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
         {
+            var products = await _productRepo.GetAllAsync();
+
+            return products.Select(p => new ProductDto
+            {
+                Id = p.ProductId.ToString(),
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                Currency = "EGP",
+                ImageUrl = p.ImgUrl,   
+                Stock = p.Stock 
+            });
+        }
+        public async Task<ProductDto?> GetProductByIdAsync(int id)
+        {
+            var product = await _productRepo.GetByIdAsync(id);
+
+            if (product == null)
+                return null;
+
+            return new ProductDto
+            {
+                Id = product.ProductId.ToString(),
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                Currency = "EGP",
+                ImageUrl = product.ImgUrl,   // لو موجودة
+                Stock = product.Stock 
+            };
+        }
+
+        //public async Task<string> CreateOrderAsync(int userId, CreatOrderDto dto)
+        //{
+        //    var order = new Order
+        //    {
+        //        UserId = userId,
+        //        DeliveryAddress = dto.DeliveryAddress,
+        //        PaymentMethod = dto.PaymentMethod,
+        //        Status = OrderStatus.Pending
+        //    };
+
+        //    decimal total = 0;
+
+        //    foreach (var item in dto.Items)
+        //    {
+        //        var product = await _productRepo.GetByIdAsync(item.ProductId);
+
+        //        if (product == null)
+        //            throw new Exception("Product not found");
+
+        //        if (product.Stock < item.Quantity)
+        //            throw new Exception("Insufficient stock");
+
+        //        product.Stock -= item.Quantity;
+
+        //        order.OrderItems.Add(new OrderItem
+        //        {
+        //            ProductId = product.ProductId,
+        //            Quantity = item.Quantity,
+        //            Price = product.Price
+        //        });
+
+        //        total += product.Price * item.Quantity;
+        //    }
+
+        //    order.TotalPrice = total;
+
+        //    await _orderRepo.AddAsync(order);
+
+        //    return "Order Created Successfully";
+        //}
+        public async Task<string> CreateOrderFromCartAsync(int userId)
+        {
+            var cartItems = await _cartRepo.GetUserCartAsync(userId);
+
+            if (cartItems == null || !cartItems.Any())
+                throw new Exception("Cart is empty");
+
             var order = new Order
             {
                 UserId = userId,
-                DeliveryAddress = dto.DeliveryAddress,
-                PaymentMethod = dto.PaymentMethod,
-                Status = OrderStatus.Pending
+                Status = OrderStatus.Pending,
+                PaymentMethod = PaymentMethod.Stripe,
+                OrderItems = new List<OrderItem>()
             };
 
             decimal total = 0;
 
-            foreach (var item in dto.Items)
+            foreach (var item in cartItems)
             {
-                var product = await _productRepo.GetByIdAsync(item.ProductId);
+                if (item.Product.Stock < item.Quantity)
+                    throw new Exception($"Insufficient stock for {item.Product.Name}");
 
-                if (product == null)
-                    throw new Exception("Product not found");
-
-                if (product.Stock < item.Quantity)
-                    throw new Exception("Insufficient stock");
-
-                product.Stock -= item.Quantity;
+                item.Product.Stock -= item.Quantity;
 
                 order.OrderItems.Add(new OrderItem
                 {
-                    ProductId = product.ProductId,
+                    ProductId = item.ProductId,
                     Quantity = item.Quantity,
-                    Price = product.Price
+                    Price = item.Product.Price
                 });
 
-                total += product.Price * item.Quantity;
+                total += item.Product.Price * item.Quantity;
             }
 
             order.TotalPrice = total;
 
             await _orderRepo.AddAsync(order);
 
-            return "Order Created Successfully";
+            return order.OrderId.ToString();
+        }
+        public async Task ConfirmOrderAsync(int orderId)
+        {
+            var order = await _orderRepo.GetByIdAsync(orderId);
+
+            if (order == null)
+                throw new Exception("Order not found");
+
+            order.Status = OrderStatus.Paid;
+
+            await _orderRepo.UpdateAsync(order);
+
+            await _cartRepo.ClearCartAsync(order.UserId);
         }
 
         public async Task<IEnumerable<Order>> GetUserOrdersAsync(int userId)
@@ -123,7 +207,7 @@ namespace ThanyaProject.BL.Service
         }
         public async Task<Order?> GetOrderDetailsAsync(int orderId, int userId, bool isAdmin)
         {
-            var order = await _orderRepo.GetByIdAsync(orderId);
+            var order = await _orderRepo.GetOrderWithDetailsAsync(orderId);
 
             if (order == null)
                 throw new Exception("Order not found");
@@ -159,5 +243,56 @@ namespace ThanyaProject.BL.Service
 
             await _orderRepo.UpdateAsync(order);
         }
+        public async Task AddToCartAsync(int userId, int productId, int quantity)
+        {
+            var product = await _productRepo.GetByIdAsync(productId);
+            if (product == null)
+                throw new Exception("Product not found");
+
+            var existingItem = await _cartRepo.GetCartItemAsync(userId, productId);
+
+            if (existingItem != null)
+            {
+                existingItem.Quantity += quantity;
+                await _cartRepo.UpdateAsync(existingItem);
+            }
+            else
+            {
+                await _cartRepo.AddAsync(new CartItem
+                {
+                    UserId = userId,
+                    ProductId = productId,
+                    Quantity = quantity
+                });
+            }
+        }
+        public async Task<IEnumerable<CartItemDto>> GetUserCartAsync(int userId)
+        {
+            var cartItems = await _cartRepo.GetUserCartAsync(userId);
+
+            return cartItems.Select(c => new CartItemDto
+            {
+                ProductId = c.ProductId,
+                Title = c.Product.Name,
+                Price = c.Product.Price,
+                Quantity = c.Quantity,
+                Total = c.Product.Price * c.Quantity
+            });
+        }
+        public async Task RemoveFromCartAsync(int userId, int productId)
+        {
+            var cartItem = await _cartRepo.FirstOrDefaultAsync(
+                c => c.UserId == userId && c.ProductId == productId);
+
+            if (cartItem == null)
+                throw new Exception("Item not found in cart");
+
+            await _cartRepo.DeleteAsync(cartItem);
+        }
+        public async Task ClearCartAsync(int userId)
+        {
+            await _cartRepo.ClearCartAsync(userId);
+        }
+
     }
 }

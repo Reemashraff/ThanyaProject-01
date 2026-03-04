@@ -10,5 +10,6 @@ namespace ThanyaProject.DAL.Repository.IRepository
     public interface IOrderRepository: IRepository<Order>
     {
         Task<List<Order>> GetUserOrdersAsync(int userId);
+        Task<Order?> GetOrderWithDetailsAsync(int userId);
     }
 }

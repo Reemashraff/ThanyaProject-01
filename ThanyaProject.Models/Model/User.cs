@@ -10,7 +10,7 @@ namespace ThanyaProject.Models.Model
 {
     public class User : IdentityUser<int>
     {
-       
+
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public int Age { get; set; }
@@ -37,6 +37,10 @@ namespace ThanyaProject.Models.Model
         public ICollection<UserRole>? UserRoles { get; set; }
         public ICollection<Device>? Devices { get; set; }
         public ICollection<Order>? Orders { get; set; }
+        public ICollection<CartItem> CartItems
+        {
+            get;
 
+        }
     }
 }

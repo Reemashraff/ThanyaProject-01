@@ -22,10 +22,20 @@ namespace ThanyaProject.DAL.Data
         public DbSet<InjuryRecords> InjuryRecords { get; set; }
         public DbSet<EmergancyContact> EmergancyContacts { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Cards> Cards { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Pachage> Packages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Role>().ToTable("Roles");
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<UserRole>().ToTable("UserRole");
+            modelBuilder.Entity<IdentityUserClaim<int>>().ToTable("UserClaims");
+            modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("UserLogins");
+            modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("RoleClaims");
+            modelBuilder.Entity<IdentityUserToken<int>>().ToTable("UserTokens");
 
             modelBuilder.Entity<UserRole>()
                 .HasKey(x => new { x.UserId, x.RoleId });
@@ -107,6 +117,16 @@ namespace ThanyaProject.DAL.Data
             modelBuilder.Entity<Device>()
                 .HasIndex(d => new { d.UserId, d.DeviceId })
                 .IsUnique();
+            modelBuilder.Entity<Pachage>()
+            .HasOne(x => x.Product)
+            .WithMany()
+            .HasForeignKey(x => x.ProductId)
+            .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<CartItem>()
+            .HasOne(c => c.User)
+            .WithMany(u => u.CartItems)
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.Restrict); // يمنع cascade
         }
     }
 }

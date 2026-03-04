@@ -34,11 +34,7 @@ namespace ThanyaProject.DAL.Repository
             return entities;
         }
 
-        public T Update(T entity)
-        {
-            _dbSet.Update(entity);
-            return entity;
-        }
+       
 
         public IEnumerable<T> UpdateRange(IEnumerable<T> entities)
         {
@@ -46,11 +42,7 @@ namespace ThanyaProject.DAL.Repository
             return entities;
         }
 
-        public T Delete(T entity)
-        {
-            _dbSet.Remove(entity);
-            return entity;
-        }
+      
 
         public IEnumerable<T> DeleteRange(IEnumerable<T> entities)
         {

@@ -14,6 +14,15 @@ namespace ThanyaProject.Controllers
     public class DevicesController : ControllerBase
     {
         private readonly IDeviceService _service;
+        int GetIdFromToken()
+        {
+            var idString = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            if (idString is null)
+                return -1;
+            if (!int.TryParse(idString.Value, out int id))
+                return -1;
+            return id;
+        }
         #region Devices
         public DevicesController(IDeviceService service)
         {
@@ -39,9 +48,10 @@ namespace ThanyaProject.Controllers
         [HttpPost("CreateDevice")]
         public async Task<IActionResult> Create([FromBody] DeviceCreateDto dto)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            //var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+           var Id = GetIdFromToken();
 
-            var result = await _service.CreateAsync(dto, userId);
+            var result = await _service.CreateAsync(dto, Id);
 
             return Ok(new
             {

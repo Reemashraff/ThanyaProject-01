@@ -14,11 +14,7 @@ namespace ThanyaProject.DAL.Repository.IRepository
 
         Task<IEnumerable<T>> AddRangeAsync(IEnumerable<T> entities);
 
-        T Update(T entity);
-
         IEnumerable<T> UpdateRange(IEnumerable<T> entities);
-
-        T Delete(T entity);
 
         public IEnumerable<T> DeleteRange(IEnumerable<T> entities);
 

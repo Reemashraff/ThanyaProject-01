@@ -14,14 +14,20 @@ namespace ThanyaProject.BL.Service.IService
         Task CreateProductAsync(ProductDto dto);
         Task UpdateProductAsync(int id, ProductDto dto);
         Task DeleteProductAsync(int id);
-        Task<IEnumerable<Product>> GetAllProductsAsync();
-        Task<Product?> GetProductByIdAsync(int id);
-        Task<string> CreateOrderAsync(int userId, CreatOrderDto dto);
+        Task<IEnumerable<ProductDto>> GetAllProductsAsync();
+        Task<ProductDto?> GetProductByIdAsync(int id);
+        //  Task<string> CreateOrderAsync(int userId, CreatOrderDto dto);
+        Task<string> CreateOrderFromCartAsync(int userId);
+        Task ConfirmOrderAsync(int orderId);
         Task<IEnumerable<Order>> GetUserOrdersAsync(int userId);
         Task<IEnumerable<Order>> GetAllOrdersAsync();
         Task UpdateOrderStatusAsync(int orderId, OrderStatus status);
         Task<Order?> GetOrderDetailsAsync(int orderId, int userId, bool isAdmin);
         Task CancelOrderAsync(int orderId, int userId, bool isAdmin);
+        Task AddToCartAsync(int userId, int productId, int quantity);
+        Task RemoveFromCartAsync(int userId, int productId);
+        Task<IEnumerable<CartItemDto>> GetUserCartAsync(int userId);
+        Task ClearCartAsync(int userId);
 
     }
 }

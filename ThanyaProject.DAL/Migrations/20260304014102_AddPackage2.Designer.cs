@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ThanyaProject.DAL.Data;
 
@@ -11,9 +12,11 @@ using ThanyaProject.DAL.Data;
 namespace ThanyaProject.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260304014102_AddPackage2")]
+    partial class AddPackage2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -395,9 +398,6 @@ namespace ThanyaProject.DAL.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeviceId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("InjuryId")
                         .HasColumnType("int");
 
@@ -414,9 +414,6 @@ namespace ThanyaProject.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Resolved")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -425,8 +422,6 @@ namespace ThanyaProject.DAL.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("NotificationId");
-
-                    b.HasIndex("DeviceId");
 
                     b.HasIndex("InjuryId");
 
@@ -883,10 +878,6 @@ namespace ThanyaProject.DAL.Migrations
 
             modelBuilder.Entity("ThanyaProject.Models.Model.Notification", b =>
                 {
-                    b.HasOne("ThanyaProject.Models.Model.Device", "Device")
-                        .WithMany()
-                        .HasForeignKey("DeviceId");
-
                     b.HasOne("ThanyaProject.Models.Model.InjuryRecords", "Injury")
                         .WithMany()
                         .HasForeignKey("InjuryId")
@@ -897,8 +888,6 @@ namespace ThanyaProject.DAL.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.Navigation("Device");
 
                     b.Navigation("Injury");
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Stripe;
 using System.Text;
 using ThanyaProject.BL.Service;
 using ThanyaProject.BL.Service.IService;
@@ -11,6 +12,7 @@ using ThanyaProject.DAL.Repository;
 using ThanyaProject.DAL.Repository.IRepository;
 using ThanyaProject.Models.Model;
 using ThanyaProject.Services;
+using ThanyaProject.Setting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,17 +32,23 @@ builder.Services.AddIdentity<User, Role>(options =>
 
 
 #region Dependency Injection
+
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<IDashBoardService,DashBoardService>();
 builder.Services.AddScoped<IStoreService, StoreService>();
+builder.Services.AddScoped<IStripeService, StripeService>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository,ProuctRepository>();
+builder.Services.AddScoped<ICartItemRepository, CartRepository>();
 
 
 var jwtSettings = builder.Configuration.GetSection("JWT");
 var key = Encoding.UTF8.GetBytes(jwtSettings.GetValue<string>("Key"));
+
+builder.Services.Configure<StripeSetting>(
+    builder.Configuration.GetSection("StripeSetting"));
 #endregion
 
 
@@ -127,6 +135,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+
+StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
 app.UseAuthentication(); 
 app.UseAuthorization();
