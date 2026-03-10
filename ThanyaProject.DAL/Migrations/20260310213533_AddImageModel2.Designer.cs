@@ -12,8 +12,8 @@ using ThanyaProject.DAL.Data;
 namespace ThanyaProject.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260304214216_EditInNotification")]
-    partial class EditInNotification
+    [Migration("20260310213533_AddImageModel2")]
+    partial class AddImageModel2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -327,6 +327,27 @@ namespace ThanyaProject.DAL.Migrations
                     b.ToTable("Hospitals");
                 });
 
+            modelBuilder.Entity("ThanyaProject.Models.Model.Image", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Images");
+                });
+
             modelBuilder.Entity("ThanyaProject.Models.Model.InjuryRecords", b =>
                 {
                     b.Property<int>("InjuryId")
@@ -541,13 +562,16 @@ namespace ThanyaProject.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
 
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImgUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ImageId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -560,6 +584,8 @@ namespace ThanyaProject.DAL.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ProductId");
+
+                    b.HasIndex("ImageId");
 
                     b.ToTable("Products");
                 });
@@ -953,6 +979,17 @@ namespace ThanyaProject.DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("ThanyaProject.Models.Model.Product", b =>
+                {
+                    b.HasOne("ThanyaProject.Models.Model.Image", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Image");
                 });
 
             modelBuilder.Entity("ThanyaProject.Models.Model.User", b =>

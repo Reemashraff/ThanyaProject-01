@@ -12,8 +12,8 @@ using ThanyaProject.DAL.Data;
 namespace ThanyaProject.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260224152446_addsos")]
-    partial class addsos
+    [Migration("20260310213232_AddImageModel")]
+    partial class AddImageModel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,7 +46,7 @@ namespace ThanyaProject.DAL.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims", (string)null);
+                    b.ToTable("RoleClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
@@ -70,7 +70,7 @@ namespace ThanyaProject.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims", (string)null);
+                    b.ToTable("UserClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
@@ -91,7 +91,7 @@ namespace ThanyaProject.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins", (string)null);
+                    b.ToTable("UserLogins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
@@ -110,7 +110,64 @@ namespace ThanyaProject.DAL.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens", (string)null);
+                    b.ToTable("UserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("ThanyaProject.Models.Model.Cards", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Cards");
+                });
+
+            modelBuilder.Entity("ThanyaProject.Models.Model.CartItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CardId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CardsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PackageId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CardsId");
+
+                    b.HasIndex("PackageId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("ThanyaProject.Models.Model.Device", b =>
@@ -270,6 +327,27 @@ namespace ThanyaProject.DAL.Migrations
                     b.ToTable("Hospitals");
                 });
 
+            modelBuilder.Entity("ThanyaProject.Models.Model.Image", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Images");
+                });
+
             modelBuilder.Entity("ThanyaProject.Models.Model.InjuryRecords", b =>
                 {
                     b.Property<int>("InjuryId")
@@ -341,6 +419,9 @@ namespace ThanyaProject.DAL.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("DeviceId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("InjuryId")
                         .HasColumnType("int");
 
@@ -357,6 +438,9 @@ namespace ThanyaProject.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("Resolved")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -365,6 +449,8 @@ namespace ThanyaProject.DAL.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("NotificationId");
+
+                    b.HasIndex("DeviceId");
 
                     b.HasIndex("InjuryId");
 
@@ -387,13 +473,11 @@ namespace ThanyaProject.DAL.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
@@ -416,6 +500,9 @@ namespace ThanyaProject.DAL.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PackageId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
@@ -424,9 +511,47 @@ namespace ThanyaProject.DAL.Migrations
 
                     b.HasKey("OrderId", "ProductId");
 
+                    b.HasIndex("PackageId");
+
                     b.HasIndex("ProductId");
 
                     b.ToTable("OrderItems");
+                });
+
+            modelBuilder.Entity("ThanyaProject.Models.Model.Pachage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpireDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("ListPrice")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
+                    b.Property<int>("left")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("Packages");
                 });
 
             modelBuilder.Entity("ThanyaProject.Models.Model.Product", b =>
@@ -437,9 +562,16 @@ namespace ThanyaProject.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
 
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ImageId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -452,6 +584,8 @@ namespace ThanyaProject.DAL.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ProductId");
+
+                    b.HasIndex("ImageId");
 
                     b.ToTable("Products");
                 });
@@ -483,7 +617,7 @@ namespace ThanyaProject.DAL.Migrations
                         .HasDatabaseName("RoleNameIndex")
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
-                    b.ToTable("AspNetRoles", (string)null);
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("ThanyaProject.Models.Model.Specialtie", b =>
@@ -625,7 +759,7 @@ namespace ThanyaProject.DAL.Migrations
 
                     b.HasIndex("SpecialtyId");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("ThanyaProject.Models.Model.UserRole", b =>
@@ -640,7 +774,7 @@ namespace ThanyaProject.DAL.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles", (string)null);
+                    b.ToTable("UserRole", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -677,6 +811,52 @@ namespace ThanyaProject.DAL.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ThanyaProject.Models.Model.Cards", b =>
+                {
+                    b.HasOne("ThanyaProject.Models.Model.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ThanyaProject.Models.Model.CartItem", b =>
+                {
+                    b.HasOne("ThanyaProject.Models.Model.Cards", "Cards")
+                        .WithMany()
+                        .HasForeignKey("CardsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ThanyaProject.Models.Model.Pachage", "Package")
+                        .WithMany()
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ThanyaProject.Models.Model.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ThanyaProject.Models.Model.User", "User")
+                        .WithMany("CartItems")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cards");
+
+                    b.Navigation("Package");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ThanyaProject.Models.Model.Device", b =>
@@ -732,6 +912,10 @@ namespace ThanyaProject.DAL.Migrations
 
             modelBuilder.Entity("ThanyaProject.Models.Model.Notification", b =>
                 {
+                    b.HasOne("ThanyaProject.Models.Model.Device", "Device")
+                        .WithMany()
+                        .HasForeignKey("DeviceId");
+
                     b.HasOne("ThanyaProject.Models.Model.InjuryRecords", "Injury")
                         .WithMany()
                         .HasForeignKey("InjuryId")
@@ -742,6 +926,8 @@ namespace ThanyaProject.DAL.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.Navigation("Device");
 
                     b.Navigation("Injury");
 
@@ -767,6 +953,10 @@ namespace ThanyaProject.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ThanyaProject.Models.Model.Pachage", "Package")
+                        .WithMany()
+                        .HasForeignKey("PackageId");
+
                     b.HasOne("ThanyaProject.Models.Model.Product", "Product")
                         .WithMany("OrderItems")
                         .HasForeignKey("ProductId")
@@ -775,7 +965,31 @@ namespace ThanyaProject.DAL.Migrations
 
                     b.Navigation("Order");
 
+                    b.Navigation("Package");
+
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("ThanyaProject.Models.Model.Pachage", b =>
+                {
+                    b.HasOne("ThanyaProject.Models.Model.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("ThanyaProject.Models.Model.Product", b =>
+                {
+                    b.HasOne("ThanyaProject.Models.Model.Image", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Image");
                 });
 
             modelBuilder.Entity("ThanyaProject.Models.Model.User", b =>
@@ -844,6 +1058,8 @@ namespace ThanyaProject.DAL.Migrations
 
             modelBuilder.Entity("ThanyaProject.Models.Model.User", b =>
                 {
+                    b.Navigation("CartItems");
+
                     b.Navigation("Devices");
 
                     b.Navigation("EmergencyContacts");

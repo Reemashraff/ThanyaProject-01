@@ -25,6 +25,7 @@ namespace ThanyaProject.DAL.Data
         public DbSet<Cards> Cards { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<Pachage> Packages { get; set; }
+        public DbSet<Image> Images { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -127,6 +128,11 @@ namespace ThanyaProject.DAL.Data
             .WithMany(u => u.CartItems)
             .HasForeignKey(c => c.UserId)
             .OnDelete(DeleteBehavior.Restrict); // يمنع cascade
+            modelBuilder.Entity<Product>()
+            .HasOne(x => x.Image)
+            .WithMany()
+            .HasForeignKey(x => x.ImageId)
+            .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

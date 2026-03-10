@@ -1,9 +1,13 @@
-﻿using System;
+﻿using CloudinaryDotNet.Actions;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ThanyaProject.BL.Service.IService;
+using ThanyaProject.DAL.Data;
+using ThanyaProject.DAL.Repository;
 using ThanyaProject.DAL.Repository.IRepository;
 using ThanyaProject.Models.DTO;
 using ThanyaProject.Models.Enum;
@@ -16,26 +20,57 @@ namespace ThanyaProject.BL.Service
         private readonly IProductRepository _productRepo;
         private readonly IOrderRepository _orderRepo;
         private readonly ICartItemRepository _cartRepo;
-
+        private readonly IImageService _imageService;
+        private readonly IImageReository _imageRepo;
+        private readonly IStripeService _stripeService;
+        private readonly AppDbContext _context;
         public StoreService(IProductRepository productRepo,
                             IOrderRepository orderRepo,
-                            ICartItemRepository cartRepo)
+                            ICartItemRepository cartRepo,
+                            IImageService imageService,
+                            IImageReository imageReos,
+                            IStripeService stripeService,
+                            AppDbContext context)
         {
             _productRepo = productRepo;
             _orderRepo = orderRepo;
             _cartRepo = cartRepo;
+            _imageService = imageService;
+            _imageRepo = imageReos;
+            _stripeService = stripeService;
+            _context = context;
+
         }
-        public async Task CreateProductAsync(ProductDto dto)
+        public async Task<Product> CreateProductAsync(ProductDto dto)
         {
+            Image image = null;
+
+            if (dto.FormFile != null)
+            {
+                var imageUrl = await _imageService.UploadImageAsync(dto.FormFile);
+
+                image = new Image
+                {
+                    Url = imageUrl.SecureUrl.ToString(),
+                    PublicId = Guid.NewGuid().ToString()
+                };
+
+                await _imageRepo.AddAsync(image);
+            }
+
             var product = new Product
             {
                 Name = dto.Name,
+                Description = dto.Description,
                 Price = dto.Price,
+                Currency = dto.Currency,
                 Stock = dto.Stock,
-                Description = dto.Description
+                Image = image
             };
 
             await _productRepo.AddAsync(product);
+
+            return product;
         }
         public async Task UpdateProductAsync(int id, ProductDto dto)
         {
@@ -66,12 +101,12 @@ namespace ThanyaProject.BL.Service
 
             return products.Select(p => new ProductDto
             {
-                Id = p.ProductId.ToString(),
+               // Id = p.ProductId,
                 Name = p.Name,
                 Description = p.Description,
                 Price = p.Price,
                 Currency = "EGP",
-                ImageUrl = p.ImgUrl,   
+                ImageUrl = p.Image != null ? p.Image.Url : null,
                 Stock = p.Stock 
             });
         }
@@ -84,56 +119,56 @@ namespace ThanyaProject.BL.Service
 
             return new ProductDto
             {
-                Id = product.ProductId.ToString(),
+              //  Id = product.ProductId,
                 Name = product.Name,
                 Description = product.Description,
                 Price = product.Price,
                 Currency = "EGP",
-                ImageUrl = product.ImgUrl,   // لو موجودة
+                ImageUrl = product.Image != null ? product.Image.Url : null,
                 Stock = product.Stock 
             };
         }
 
-        //public async Task<string> CreateOrderAsync(int userId, CreatOrderDto dto)
-        //{
-        //    var order = new Order
-        //    {
-        //        UserId = userId,
-        //        DeliveryAddress = dto.DeliveryAddress,
-        //        PaymentMethod = dto.PaymentMethod,
-        //        Status = OrderStatus.Pending
-        //    };
+        public async Task<string> CreateOrderAsync(int userId, CreatOrderDto dto)
+        {
+            var order = new Order
+            {
+                UserId = userId,
+                DeliveryAddress = dto.DeliveryAddress,
+                PaymentMethod = dto.PaymentMethod,
+                Status = OrderStatus.Pending
+            };
 
-        //    decimal total = 0;
+            decimal total = 0;
 
-        //    foreach (var item in dto.Items)
-        //    {
-        //        var product = await _productRepo.GetByIdAsync(item.ProductId);
+            foreach (var item in dto.Items)
+            {
+                var product = await _productRepo.GetByIdAsync(item.ProductId);
 
-        //        if (product == null)
-        //            throw new Exception("Product not found");
+                if (product == null)
+                    throw new Exception("Product not found");
 
-        //        if (product.Stock < item.Quantity)
-        //            throw new Exception("Insufficient stock");
+                if (product.Stock < item.Quantity)
+                    throw new Exception("Insufficient stock");
 
-        //        product.Stock -= item.Quantity;
+                product.Stock -= item.Quantity;
 
-        //        order.OrderItems.Add(new OrderItem
-        //        {
-        //            ProductId = product.ProductId,
-        //            Quantity = item.Quantity,
-        //            Price = product.Price
-        //        });
+                order.OrderItems.Add(new OrderItem
+                {
+                    ProductId = product.ProductId,
+                    Quantity = item.Quantity,
+                    Price = product.Price
+                });
 
-        //        total += product.Price * item.Quantity;
-        //    }
+                total += product.Price * item.Quantity;
+            }
 
-        //    order.TotalPrice = total;
+            order.TotalPrice = total;
 
-        //    await _orderRepo.AddAsync(order);
+            await _orderRepo.AddAsync(order);
 
-        //    return "Order Created Successfully";
-        //}
+            return "Order Created Successfully";
+        }
         public async Task<string> CreateOrderFromCartAsync(int userId)
         {
             var cartItems = await _cartRepo.GetUserCartAsync(userId);

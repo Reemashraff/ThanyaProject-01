@@ -11,12 +11,12 @@ namespace ThanyaProject.BL.Service.IService
 {
     public interface IStoreService
     {
-        Task CreateProductAsync(ProductDto dto);
+        Task<Product> CreateProductAsync(ProductDto dto);
         Task UpdateProductAsync(int id, ProductDto dto);
         Task DeleteProductAsync(int id);
         Task<IEnumerable<ProductDto>> GetAllProductsAsync();
         Task<ProductDto?> GetProductByIdAsync(int id);
-        //  Task<string> CreateOrderAsync(int userId, CreatOrderDto dto);
+        Task<string> CreateOrderAsync(int userId, CreatOrderDto dto);
         Task<string> CreateOrderFromCartAsync(int userId);
         Task ConfirmOrderAsync(int orderId);
         Task<IEnumerable<Order>> GetUserOrdersAsync(int userId);

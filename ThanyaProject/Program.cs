@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Stripe;
 using System.Text;
+using System.Text.Json.Serialization;
 using ThanyaProject.BL.Service;
 using ThanyaProject.BL.Service.IService;
 using ThanyaProject.DAL.Data;
@@ -27,10 +28,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddIdentity<User, Role>(options =>
 {
-    options.Password.RequireLowercase = false;        
-    options.Password.RequireUppercase = false;        
-    options.Password.RequireNonAlphanumeric = false;  
-    options.Password.RequiredLength = 9;              
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 9;
 })
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
@@ -40,13 +41,16 @@ builder.Services.AddIdentity<User, Role>(options =>
 
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IDeviceService, DeviceService>();
-builder.Services.AddScoped<IDashBoardService,DashBoardService>();
+builder.Services.AddScoped<IDashBoardService, DashBoardService>();
 builder.Services.AddScoped<IStoreService, StoreService>();
 builder.Services.AddScoped<IStripeService, StripeService>();
+builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IProductRepository,ProuctRepository>();
+builder.Services.AddScoped<IProductRepository, ProuctRepository>();
 builder.Services.AddScoped<ICartItemRepository, CartRepository>();
+builder.Services.AddScoped<IImageReository, ImageRepository>();
+
 
 
 var jwtSettings = builder.Configuration.GetSection("JWT");
@@ -54,6 +58,8 @@ var key = Encoding.UTF8.GetBytes(jwtSettings.GetValue<string>("Key"));
 
 builder.Services.Configure<StripeSetting>(
     builder.Configuration.GetSection("StripeSetting"));
+builder.Services.Configure<CloudinarySettingscs>(
+    builder.Configuration.GetSection("CloudinarySettings"));
 #endregion
 
 
@@ -85,7 +91,15 @@ builder.Services.AddAuthentication(options =>
 });
 
 
-builder.Services.AddControllers();
+// Configure controllers with JSON options to ignore cycles
+builder.Services.AddControllers()
+    .AddJsonOptions(opts =>
+    {
+        // Prevent System.Text.Json from throwing when EF navigation properties reference each other
+        opts.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        // Optional: don't emit null properties
+        opts.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
 
 
 builder.Services.AddEndpointsApiExplorer();
@@ -120,9 +134,13 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+    var services = scope.ServiceProvider;
+
+    var roleManager = services.GetRequiredService<RoleManager<Role>>();
+    var userManager = services.GetRequiredService<UserManager<User>>();
 
     await DbSeed.SeedRolesAsync(roleManager);
+    await DbSeed.SeedAdminAsync(userManager);
 }
 
 
@@ -141,10 +159,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-
+app.UseStaticFiles();
 StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
-app.UseAuthentication(); 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

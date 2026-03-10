@@ -39,7 +39,7 @@ namespace ThanyaProject.Controllers
 
     [Authorize(Roles ="Admin")]
         [HttpPost("CreateProduct")]
-        public async Task<IActionResult> CreateProduct(ProductDto dto)
+        public async Task<IActionResult> CreateProduct([FromForm]ProductDto dto)
         {
             await _storeService.CreateProductAsync(dto);
             return Ok(new { message = "Product created successfully" });
@@ -95,16 +95,16 @@ namespace ThanyaProject.Controllers
 
         #endregion
         #region Orders
-        //[Authorize]
-        //[HttpPost("orders")]
-        //public async Task<IActionResult> CreateOrder(CreatOrderDto dto)
-        //{
-        //    var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        [Authorize]
+        [HttpPost("orders")]
+        public async Task<IActionResult> CreateOrder(CreatOrderDto dto)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-        //    var result = await _storeService.CreateOrderAsync(userId, dto);
+            var result = await _storeService.CreateOrderAsync(userId, dto);
 
-        //    return Ok(new { message = result });
-        //}
+            return Ok(new { message = result });
+        }
 
         [Authorize]
         [HttpGet("orders")]

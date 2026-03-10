@@ -29,7 +29,9 @@ namespace ThanyaProject.BL.Service
                             {
                                 Name = oi.Package.Product.Name,
                                 Description = oi.Package.Product.Description,
-                                Images = new List<string> { oi.Package.Product.ImgUrl },
+                                Images = oi.Package.Product.Image != null
+                  ? new List<string> { oi.Package.Product.Image.Url }
+                  : new List<string>(),
                             },
                         },
                         Quantity = oi.Quantity,
@@ -40,7 +42,7 @@ namespace ThanyaProject.BL.Service
                 };
 
                 var service = new SessionService();
-                Session session = service.Create(options);
+                Session session = await service.CreateAsync(options);
 
                 return session.Url;
             }
