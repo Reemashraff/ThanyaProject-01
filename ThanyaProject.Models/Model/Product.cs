@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace ThanyaProject.Models.Model
@@ -25,6 +26,7 @@ namespace ThanyaProject.Models.Model
         public int ImageId { get; set; }
         [AllowNull]
         public Image Image { get; set; }
+        [JsonIgnore]
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     }

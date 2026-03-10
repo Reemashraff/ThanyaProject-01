@@ -17,7 +17,13 @@ namespace ThanyaProject.DAL.Repository
         {
             _context = context;
         }
-        
+        public async Task<List<Order>> GetAllOrdersWithDetailsAsync()
+        {
+            return await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .ToListAsync();
+        }
         public async Task<List<Order>> GetUserOrdersAsync(int userId)
         {
             return await _context.Orders

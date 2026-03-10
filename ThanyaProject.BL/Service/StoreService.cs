@@ -227,7 +227,7 @@ namespace ThanyaProject.BL.Service
             => await _orderRepo.GetUserOrdersAsync(userId);
 
         public async Task<IEnumerable<Order>> GetAllOrdersAsync()
-            => await _orderRepo.GetAllAsync();
+            => await _orderRepo.GetAllOrdersWithDetailsAsync();
 
         public async Task UpdateOrderStatusAsync(int orderId, OrderStatus status)
         {
