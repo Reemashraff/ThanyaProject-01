@@ -9,6 +9,6 @@ namespace ThanyaProject.Models.DTO
     public class ProductResponse
     {
         public string Status { get; set; }
-        public IEnumerable<ProductDto> Products { get; set; }
+        public IEnumerable<ProductItemResponse> Products { get; set; }
     }
 }

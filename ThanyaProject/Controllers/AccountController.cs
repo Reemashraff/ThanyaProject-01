@@ -96,15 +96,21 @@ namespace ThanyaProject.Controllers
                 return Unauthorized("Invalid Email or Password");
 
             var roles = await _userManager.GetRolesAsync(user);
-
             var token = _jwtService.CreateToken(user, roles);
+
+            Response.Cookies.Append("token", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddDays(7)
+            });
 
             return Ok(new
             {
                 status = "success",
                 data = new
                 {
-                    token = token,
                     user = new
                     {
                         id = user.Id,
@@ -116,11 +122,12 @@ namespace ThanyaProject.Controllers
                 }
             });
         }
-      
+
 
         [HttpPost("Logout")]
         public async Task<IActionResult> Logout()
         {
+            Response.Cookies.Delete("token");
             await _signInManager.SignOutAsync();
             return Ok(new { Message = "Logout successful!" });
         }

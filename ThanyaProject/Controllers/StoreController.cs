@@ -30,16 +30,16 @@ namespace ThanyaProject.Controllers
             IOptions<StripeSetting> stripeOptions,
             UserManager<User> userManager)
         {
-           _storeService = storeService;
-           _stripeService = stripeService;
-           _stripeOptions = stripeOptions.Value;  
-           _userManager = userManager;
+            _storeService = storeService;
+            _stripeService = stripeService;
+            _stripeOptions = stripeOptions.Value;
+            _userManager = userManager;
         }
-    #region Products
+        #region Products
 
-    [Authorize(Roles ="Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("CreateProduct")]
-        public async Task<IActionResult> CreateProduct([FromForm]ProductDto dto)
+        public async Task<IActionResult> CreateProduct([FromForm] ProductDto dto)
         {
             await _storeService.CreateProductAsync(dto);
             return Ok(new { message = "Product created successfully" });

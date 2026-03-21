@@ -80,8 +80,19 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSettings.GetValue<string>("Audience"),
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
+
     options.Events = new JwtBearerEvents
     {
+        OnMessageReceived = context =>
+        {
+            var token = context.Request.Cookies["token"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                context.Token = token;
+            }
+            return Task.CompletedTask;
+        },
+
         OnAuthenticationFailed = context =>
         {
             Console.WriteLine(context.Exception.ToString());
@@ -146,14 +157,14 @@ using (var scope = app.Services.CreateScope())
 
 
 
-    app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 
-    app.MapGet("/", context =>
-    {
-        context.Response.Redirect("/swagger");
-        return Task.CompletedTask;
-    });
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/swagger");
+    return Task.CompletedTask;
+});
 
 
 app.UseHttpsRedirection();

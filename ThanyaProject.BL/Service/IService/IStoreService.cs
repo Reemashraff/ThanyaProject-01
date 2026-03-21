@@ -14,7 +14,7 @@ namespace ThanyaProject.BL.Service.IService
         Task<Product> CreateProductAsync(ProductDto dto);
         Task UpdateProductAsync(int id, ProductDto dto);
         Task DeleteProductAsync(int id);
-        Task<IEnumerable<ProductDto>> GetAllProductsAsync();
+        Task<IEnumerable<ProductItemResponse>> GetAllProductsAsync();
         Task<ProductDto?> GetProductByIdAsync(int id);
         Task<string> CreateOrderAsync(int userId, CreatOrderDto dto);
         Task<string> CreateOrderFromCartAsync(int userId);

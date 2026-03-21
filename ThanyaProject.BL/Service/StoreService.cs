@@ -95,19 +95,19 @@ namespace ThanyaProject.BL.Service
 
             await _productRepo.DeleteAsync(product);
         }
-        public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
+        public async Task<IEnumerable<ProductItemResponse>> GetAllProductsAsync()
         {
             var products = await _productRepo.GetAllAsync();
 
-            return products.Select(p => new ProductDto
+            return products.Select(p => new ProductItemResponse
             {
-               // Id = p.ProductId,
-                Name = p.Name,
+                Id = $"p{p.ProductId}",
+                Title = p.Name,
                 Description = p.Description,
                 Price = p.Price,
-                Currency = "EGP",
+                Currency = p.Currency,
                 ImageUrl = p.Image != null ? p.Image.Url : null,
-                Stock = p.Stock 
+                InStock = p.Stock > 0
             });
         }
         public async Task<ProductDto?> GetProductByIdAsync(int id)
