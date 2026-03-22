@@ -19,16 +19,21 @@ namespace ThanyaProject.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly JwtService _jwtService;
 
+        private readonly IWebHostEnvironment _env;
+
         public AccountController(
             UserManager<User> userManager,
             RoleManager<Role> roleManager,
             SignInManager<User> signInManager,
-            JwtService jwtService)
+            JwtService jwtService,
+            IWebHostEnvironment env)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
             _jwtService = jwtService;
+            _env = env;
+
         }
 
 
@@ -101,8 +106,8 @@ namespace ThanyaProject.Controllers
             Response.Cookies.Append("token", token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
+                Secure = false,
+                SameSite = SameSiteMode.Lax,
                 Expires = DateTime.UtcNow.AddDays(7)
             });
 
