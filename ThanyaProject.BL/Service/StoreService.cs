@@ -129,6 +129,7 @@ namespace ThanyaProject.BL.Service
             };
         }
 
+
         public async Task<string> CreateOrderAsync(int userId, CreatOrderDto dto)
         {
             var order = new Order
@@ -169,7 +170,7 @@ namespace ThanyaProject.BL.Service
 
             return "Order Created Successfully";
         }
-        public async Task<string> CreateOrderFromCartAsync(int userId)
+        public async Task<int> CreateOrderFromCartAsync(int userId)
         {
             var cartItems = await _cartRepo.GetUserCartAsync(userId);
 
@@ -191,26 +192,22 @@ namespace ThanyaProject.BL.Service
                 if (item.Product.Stock < item.Quantity)
                     throw new Exception($"Insufficient stock for {item.Product.Name}");
 
-                item.Product.Stock -= item.Quantity;
-
                 order.OrderItems.Add(new OrderItem
                 {
                     ProductId = item.ProductId,
-                    PackageId = item.PackageId,
                     Quantity = item.Quantity,
                     Price = item.Product.Price
                 });
 
                 total += item.Product.Price * item.Quantity;
             }
-
             order.TotalPrice = total;
 
             await _orderRepo.AddAsync(order);
 
-            await _cartRepo.ClearCartAsync(userId);
+           // await _cartRepo.ClearCartAsync(userId);
 
-            return order.OrderId.ToString();
+            return order.OrderId;
         }
         public async Task ConfirmOrderAsync(int orderId)
         {
@@ -219,20 +216,20 @@ namespace ThanyaProject.BL.Service
             if (order == null)
                 throw new Exception("Order not found");
 
+            if (order.Status == OrderStatus.Paid)
+                return;
+
             order.Status = OrderStatus.Paid;
 
             foreach (var item in order.OrderItems)
             {
-                var product = await _productRepo.GetByIdAsync(item.ProductId);
-
-                if (product != null)
+                if (item.Product != null)
                 {
-                    product.Stock -= item.Quantity;
+                    item.Product.Stock -= item.Quantity;
                 }
             }
 
-            await _orderRepo.UpdateAsync(order);
-
+            await _orderRepo.UpdateAsync(order);  
             await _cartRepo.ClearCartAsync(order.UserId);
         }
 
@@ -267,7 +264,7 @@ namespace ThanyaProject.BL.Service
         }
         public async Task CancelOrderAsync(int orderId, int userId, bool isAdmin)
         {
-            var order = await _orderRepo.GetByIdAsync(orderId);
+            var order = await _orderRepo.GetOrderWithDetailsAsync(orderId);
 
             if (order == null)
                 throw new Exception("Order not found");
@@ -275,7 +272,7 @@ namespace ThanyaProject.BL.Service
             if (!isAdmin && order.UserId != userId)
                 throw new Exception("Unauthorized");
 
-            if (order.Status == OrderStatus.Paid ||order.Status == OrderStatus.Delivered)
+            if (order.Status == OrderStatus.Paid || order.Status == OrderStatus.Delivered)
                 throw new Exception("Cannot cancel this order");
 
             foreach (var item in order.OrderItems)
@@ -287,27 +284,32 @@ namespace ThanyaProject.BL.Service
                 }
             }
 
-           order.Status = OrderStatus.Cancelled;
+            order.Status = OrderStatus.Cancelled;
 
             await _orderRepo.UpdateAsync(order);
         }
         public async Task AddToCartAsync(int userId, int productId, int quantity)
         {
             var product = await _productRepo.GetByIdAsync(productId);
+
             if (product == null)
                 throw new Exception("Product not found");
-            if (product.Stock < quantity)
-                throw new Exception("Not enough stock");
 
             var existingItem = await _cartRepo.GetCartItemAsync(userId, productId);
 
             if (existingItem != null)
             {
+                if (product.Stock < existingItem.Quantity + quantity)
+                    throw new Exception("Not enough stock");
+
                 existingItem.Quantity += quantity;
                 await _cartRepo.UpdateAsync(existingItem);
             }
             else
             {
+                if (product.Stock < quantity)
+                    throw new Exception("Not enough stock");
+
                 await _cartRepo.AddAsync(new CartItem
                 {
                     UserId = userId,

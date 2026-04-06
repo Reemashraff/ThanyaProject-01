@@ -36,10 +36,11 @@ namespace ThanyaProject.DAL.Repository
         public async Task<Order?> GetOrderWithDetailsAsync(int id)
         {
             return await _context.Orders
-                .Include(o => o.OrderItems)
+            // .AsNoTracking()
+             .Include(o => o.OrderItems)
                  .ThenInclude(oi => oi.Product)
                  .ThenInclude(p => p.Image)
-                .FirstOrDefaultAsync(o => o.OrderId == id);
+             .FirstOrDefaultAsync(o => o.OrderId == id);
         }
 
     }

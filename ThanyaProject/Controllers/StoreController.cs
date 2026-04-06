@@ -92,19 +92,18 @@ namespace ThanyaProject.Controllers
                 product = product
             });
         }
-
         #endregion
         #region Orders
-        [Authorize]
-        [HttpPost("Createorders")]
-        public async Task<IActionResult> CreateOrder(CreatOrderDto dto)
-        {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        //[Authorize]
+        //[HttpPost("Createorders")]
+        //public async Task<IActionResult> CreateOrder(CreatOrderDto dto)
+        //{
+        //    var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-            var result = await _storeService.CreateOrderAsync(userId, dto);
+        //    var result = await _storeService.CreateOrderAsync(userId, dto);
 
-            return Ok(new { message = result });
-        }
+        //    return Ok(new { message = result });
+        //}
 
         [Authorize]
         [HttpGet("GetordersOfUsers")]
@@ -146,7 +145,7 @@ namespace ThanyaProject.Controllers
             var orderId = await _storeService.CreateOrderFromCartAsync(userId);
 
             var order = await _storeService.GetOrderDetailsAsync(
-                int.Parse(orderId),
+                orderId,
                 userId,
                 User.IsInRole("Admin")
             );
@@ -163,7 +162,7 @@ namespace ThanyaProject.Controllers
                 sessionUrl = sessionUrl
             });
         }
-
+        [Authorize]
         [HttpGet("ConfirmOrder")]
         public async Task<IActionResult> ConfirmOrder(int orderId)
         {
@@ -229,3 +228,4 @@ namespace ThanyaProject.Controllers
         #endregion 
     }
 }
+   

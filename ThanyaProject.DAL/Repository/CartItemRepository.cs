@@ -31,6 +31,8 @@ namespace ThanyaProject.DAL.Repository
         public async Task<CartItem?> GetCartItemAsync(int userId, int productId)
         {
             return await _context.CartItems
+                .Include(c => c.Product)
+                .ThenInclude(p => p.Image)
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.ProductId == productId);
         }
 

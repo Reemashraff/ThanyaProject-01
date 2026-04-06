@@ -5,7 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ThanyaProject.BL.Service.IService;
+using ThanyaProject.Models.DTO;
 using ThanyaProject.Models.Model;
+using Stripe.Checkout;
+using ThanyaProject.BL.Service.IService;
+using ThanyaProject.Models.DTO;
 
 namespace ThanyaProject.BL.Service
 {
@@ -37,7 +41,7 @@ namespace ThanyaProject.BL.Service
                         Quantity = oi.Quantity,
                     }).ToList(),
                     Mode = "payment",
-                    SuccessUrl = successUrl,
+                    SuccessUrl = successUrl + "&session_id={CHECKOUT_SESSION_ID}",
                     CancelUrl = domain + "/swagger/index.html",
                 };
 
