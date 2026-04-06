@@ -23,6 +23,7 @@ namespace ThanyaProject.DAL.Repository
         {
             return await _context.CartItems
                 .Include(c => c.Product)
+                .ThenInclude(p => p.Image)
                 .Where(c => c.UserId == userId)
                 .ToListAsync();
         }

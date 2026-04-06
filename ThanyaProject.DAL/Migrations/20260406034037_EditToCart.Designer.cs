@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ThanyaProject.DAL.Data;
 
@@ -11,9 +12,11 @@ using ThanyaProject.DAL.Data;
 namespace ThanyaProject.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260406034037_EditToCart")]
+    partial class EditToCart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -136,10 +139,10 @@ namespace ThanyaProject.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CardId")
+                    b.Property<int>("CardId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CardsId")
+                    b.Property<int>("CardsId")
                         .HasColumnType("int");
 
                     b.Property<int?>("PackageId")
@@ -825,7 +828,9 @@ namespace ThanyaProject.DAL.Migrations
                 {
                     b.HasOne("ThanyaProject.Models.Model.Cards", "Cards")
                         .WithMany()
-                        .HasForeignKey("CardsId");
+                        .HasForeignKey("CardsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ThanyaProject.Models.Model.Pachage", "Package")
                         .WithMany()

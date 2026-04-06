@@ -37,9 +37,8 @@ namespace ThanyaProject.DAL.Repository
         {
             return await _context.Orders
                 .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Package)
-                        .ThenInclude(p => p.Product)
-                            .ThenInclude(pr => pr.Image)
+                 .ThenInclude(oi => oi.Product)
+                 .ThenInclude(p => p.Image)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
         }
 

@@ -15,7 +15,7 @@ namespace ThanyaProject.BL.Service
         {
             try
             {
-                var domain = "https://localhost:44361/";
+                var domain = "http://thanyaproject.runasp.net/";
                 var options = new SessionCreateOptions
                 {
                     PaymentMethodTypes = new List<string> { "card" },
@@ -23,22 +23,22 @@ namespace ThanyaProject.BL.Service
                     {
                         PriceData = new SessionLineItemPriceDataOptions
                         {
-                            UnitAmount = (long)(oi.Package.Price * 100),
+                            UnitAmount = (long)(oi.Price * 100),
                             Currency = "egp",
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
-                                Name = oi.Package.Product.Name,
-                                Description = oi.Package.Product.Description,
-                                Images = oi.Package.Product.Image != null
-                  ? new List<string> { oi.Package.Product.Image.Url }
-                  : new List<string>(),
+                                Name = oi.Product.Name,
+                                Description = oi.Product.Description,
+                                Images = oi.Product.Image != null
+                                ? new List<string> { oi.Product.Image.Url }
+                                : new List<string>(),
                             },
                         },
                         Quantity = oi.Quantity,
                     }).ToList(),
                     Mode = "payment",
-                    SuccessUrl = domain + "/confirm",
-                    CancelUrl = domain + "/deny",
+                    SuccessUrl = successUrl,
+                    CancelUrl = domain + "/swagger/index.html",
                 };
 
                 var service = new SessionService();

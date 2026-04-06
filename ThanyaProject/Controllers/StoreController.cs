@@ -96,7 +96,7 @@ namespace ThanyaProject.Controllers
         #endregion
         #region Orders
         [Authorize]
-        [HttpPost("orders")]
+        [HttpPost("Createorders")]
         public async Task<IActionResult> CreateOrder(CreatOrderDto dto)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
@@ -107,7 +107,7 @@ namespace ThanyaProject.Controllers
         }
 
         [Authorize]
-        [HttpGet("orders")]
+        [HttpGet("GetordersOfUsers")]
         public async Task<IActionResult> GetUserOrders()
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
@@ -118,7 +118,7 @@ namespace ThanyaProject.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("admin/orders")]
+        [HttpGet("admin/GetallordersofAllUsers")]
         public async Task<IActionResult> GetAllOrders()
         {
             var orders = await _storeService.GetAllOrdersAsync();
@@ -136,7 +136,7 @@ namespace ThanyaProject.Controllers
 
             return Ok(order);
         }
-        [HttpPost]
+
         [HttpPost("Checkout")]
         [Authorize]
         public async Task<IActionResult> Checkout()
@@ -177,6 +177,26 @@ namespace ThanyaProject.Controllers
         }
         #endregion
         #region CartItem
+        [Authorize]
+        [HttpPost("AddToCart")]
+        public async Task<IActionResult> AddToCart(int productId, int quantity)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            await _storeService.AddToCartAsync(userId, productId, quantity);
+
+            return Ok(new { message = "Item added to cart successfully" });
+        }
+        [Authorize]
+        [HttpGet("GetCatItem")]
+        public async Task<IActionResult> GetUserCart()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var cartItems = await _storeService.GetUserCartAsync(userId);
+
+            return Ok(cartItems);
+        }
         [Authorize]
         [HttpDelete("cart/{productId}")]
         public async Task<IActionResult> RemoveFromCart(int productId)

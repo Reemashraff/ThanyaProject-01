@@ -196,6 +196,7 @@ namespace ThanyaProject.BL.Service
                 order.OrderItems.Add(new OrderItem
                 {
                     ProductId = item.ProductId,
+                    PackageId = item.PackageId,
                     Quantity = item.Quantity,
                     Price = item.Product.Price
                 });
@@ -207,16 +208,28 @@ namespace ThanyaProject.BL.Service
 
             await _orderRepo.AddAsync(order);
 
+            await _cartRepo.ClearCartAsync(userId);
+
             return order.OrderId.ToString();
         }
         public async Task ConfirmOrderAsync(int orderId)
         {
-            var order = await _orderRepo.GetByIdAsync(orderId);
+            var order = await _orderRepo.GetOrderWithDetailsAsync(orderId);
 
             if (order == null)
                 throw new Exception("Order not found");
 
             order.Status = OrderStatus.Paid;
+
+            foreach (var item in order.OrderItems)
+            {
+                var product = await _productRepo.GetByIdAsync(item.ProductId);
+
+                if (product != null)
+                {
+                    product.Stock -= item.Quantity;
+                }
+            }
 
             await _orderRepo.UpdateAsync(order);
 
@@ -283,6 +296,8 @@ namespace ThanyaProject.BL.Service
             var product = await _productRepo.GetByIdAsync(productId);
             if (product == null)
                 throw new Exception("Product not found");
+            if (product.Stock < quantity)
+                throw new Exception("Not enough stock");
 
             var existingItem = await _cartRepo.GetCartItemAsync(userId, productId);
 
@@ -310,6 +325,7 @@ namespace ThanyaProject.BL.Service
                 ProductId = c.ProductId,
                 Title = c.Product.Name,
                 Price = c.Product.Price,
+                ImageUrl = c.Product.Image != null ? c.Product.Image.Url : null,
                 Quantity = c.Quantity,
                 Total = c.Product.Price * c.Quantity
             });

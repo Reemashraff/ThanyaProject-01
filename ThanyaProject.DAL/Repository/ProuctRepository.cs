@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NPOI.SS.Formula.Functions;
+using Org.BouncyCastle.Asn1;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +12,7 @@ using ThanyaProject.Models.Model;
 
 namespace ThanyaProject.DAL.Repository
 {
-    public class ProuctRepository : Repository<Product> ,IProductRepository
+    public class ProuctRepository : Repository<Product>, IProductRepository
     {
         private readonly AppDbContext _context;
 
@@ -20,4 +22,6 @@ namespace ThanyaProject.DAL.Repository
         }
 
     }
+
 }
+
