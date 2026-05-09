@@ -97,7 +97,7 @@ namespace ThanyaProject.BL.Service
         }
         public async Task<IEnumerable<ProductItemResponse>> GetAllProductsAsync()
         {
-            var products = await _productRepo.GetAllAsync();
+            var products = await _productRepo.GetAllAsync(null,p => p.Image);
 
             return products.Select(p => new ProductItemResponse
             {
@@ -112,7 +112,10 @@ namespace ThanyaProject.BL.Service
         }
         public async Task<ProductDto?> GetProductByIdAsync(int id)
         {
-            var product = await _productRepo.GetByIdAsync(id);
+            var product = await _productRepo.FirstOrDefaultAsync(
+                                 p => p.ProductId == id,
+                                 p => p.Image
+            );
 
             if (product == null)
                 return null;

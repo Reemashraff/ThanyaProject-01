@@ -16,10 +16,14 @@ namespace ThanyaProject.Models.DTO
         [DataType(DataType.Date)]
         public DateTime DateOfBirth { get; set; }
         [EmailAddress]
-        public string Email { get; set; }= null!;
+        public string Email { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
         public string Address { get; set; } = null!;
-        public string Gender { get; set; }= null!;
+        public string Gender { get; set; } = null!;
         public string Status { get; set; } = "User";
+        public string BloodType { get; set; } = null!;
+        public string ChronicDiseases { get; set; } = null!;
+        public string Allergies { get; set; } = null!;
+        public string CurrentMedication { get; set; } = null!;
     }
 }

@@ -2,9 +2,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text;
+using ThanyaProject.DAL.Data;
 using ThanyaProject.Models.DTO;
+using ThanyaProject.Models.Enums;
 using ThanyaProject.Models.Model;
 using ThanyaProject.Services;
 
@@ -18,7 +21,7 @@ namespace ThanyaProject.Controllers
         private readonly RoleManager<Role> _roleManager;
         private readonly SignInManager<User> _signInManager;
         private readonly JwtService _jwtService;
-
+        private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _env;
 
         public AccountController(
@@ -26,15 +29,18 @@ namespace ThanyaProject.Controllers
             RoleManager<Role> roleManager,
             SignInManager<User> signInManager,
             JwtService jwtService,
-            IWebHostEnvironment env)
+            IWebHostEnvironment env,
+             AppDbContext context)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
             _jwtService = jwtService;
             _env = env;
+            _context = context;
 
         }
+
 
 
 
@@ -70,12 +76,27 @@ namespace ThanyaProject.Controllers
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
+            var medicalRecord = new MedicalRecord
+            {
+                UserId = user.Id,
+                BloodType = model.BloodType,
+                ChronicDiseases = model.ChronicDiseases,
+                Allergies = model.Allergies,
+                CurrentMedication = model.CurrentMedication
+            };
+
+            _context.MedicalRecords.Add(medicalRecord);
+            await _context.SaveChangesAsync();
+
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
             await _userManager.AddToRoleAsync(user, roleName);
 
             return Ok(new { Message = "User Registered Successfully", Email = user.Email, Role = roleName });
+
+
+
         }
 
 
@@ -139,6 +160,54 @@ namespace ThanyaProject.Controllers
 
 
 
+        [HttpPut("medical/update")]
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> UpdateMedicalRecord([FromBody] MedicalRecordDto model)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var medical = await _context.MedicalRecords
+                .FirstOrDefaultAsync(m => m.UserId == userId);
+
+            if (medical == null)
+                return NotFound("Medical record not found");
+
+            if (!string.IsNullOrWhiteSpace(model.BloodType))
+            {
+                if (!BloodTypeCase.TryParseBloodType(model.BloodType, out BloodType bloodEnum))
+                {
+                    return BadRequest("Invalid blood type. Valid types: A+, A-, B+, B-, AB+, AB-, O+, O- or _Positive/_Negative.");
+                }
+
+                medical.BloodType = bloodEnum.ToString();
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.ChronicDiseases))
+                medical.ChronicDiseases = model.ChronicDiseases;
+
+            if (!string.IsNullOrWhiteSpace(model.Allergies))
+                medical.Allergies = model.Allergies;
+
+            if (!string.IsNullOrWhiteSpace(model.CurrentMedication))
+                medical.CurrentMedication = model.CurrentMedication;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                status = "success",
+                medicalRecord = new
+                {
+                    bloodType = medical.BloodType,
+                    chronicDiseases = medical.ChronicDiseases,
+                    allergies = medical.Allergies,
+                    currentMedication = medical.CurrentMedication
+                }
+            });
+        }
+
+
+
         [HttpGet("me")]
         [Authorize]
         public async Task<IActionResult> GetCurrentUser()
@@ -155,12 +224,23 @@ namespace ThanyaProject.Controllers
 
             var roles = await _userManager.GetRolesAsync(user);
 
+            var medical = _context.MedicalRecords
+                .FirstOrDefault(m => m.UserId == user.Id);
+
             return Ok(new
             {
                 id = user.Id,
                 name = user.FirstName + " " + user.LastName,
                 email = user.Email,
-                role = roles.FirstOrDefault()
+                role = roles.FirstOrDefault(),
+
+                medicalRecord = new
+                {
+                    bloodType = medical?.BloodType,
+                    chronicDiseases = medical?.ChronicDiseases,
+                    allergies = medical?.Allergies,
+                    currentMedication = medical?.CurrentMedication
+                }
             });
         }
     }

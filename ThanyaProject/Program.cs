@@ -50,6 +50,8 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProuctRepository>();
 builder.Services.AddScoped<ICartItemRepository, CartRepository>();
 builder.Services.AddScoped<IImageReository, ImageRepository>();
+builder.Services.AddScoped<IContactUsService, ContactUsService>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 
 
@@ -112,6 +114,19 @@ builder.Services.AddControllers()
         opts.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost:3000",
+                "https://localhost:3000"
+              )
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -155,7 +170,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 
-
+app.UseCors("AllowFrontend");
 
 app.UseSwagger();
 app.UseSwaggerUI();

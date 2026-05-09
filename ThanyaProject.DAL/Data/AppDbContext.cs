@@ -37,6 +37,28 @@ namespace ThanyaProject.DAL.Data
             modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("UserLogins");
             modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("RoleClaims");
             modelBuilder.Entity<IdentityUserToken<int>>().ToTable("UserTokens");
+            modelBuilder.Entity<ContactUs>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.Name)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(x => x.Email)
+                      .IsRequired()
+                      .HasMaxLength(150);
+
+                entity.Property(x => x.Subject)
+                      .IsRequired()
+                      .HasMaxLength(200);
+
+                entity.Property(x => x.Message)
+                      .IsRequired();
+
+                entity.Property(x => x.CreatedAt)
+                      .HasDefaultValueSql("GETUTCDATE()");
+            });
 
             modelBuilder.Entity<UserRole>()
                 .HasKey(x => new { x.UserId, x.RoleId });
