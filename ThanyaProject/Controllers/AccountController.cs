@@ -51,14 +51,20 @@ namespace ThanyaProject.Controllers
                 return BadRequest(ModelState);
 
             var existingUser = await _userManager.FindByEmailAsync(model.Email);
+
             if (existingUser != null)
                 return BadRequest("Email already exists");
 
-            var roleName = string.IsNullOrEmpty(model.Status) ? "User" : model.Status;
+            // أي حد يعمل Register يبقى User
+            var roleName = "User";
 
+            // لو الرول مش موجود يتعمل
             if (!await _roleManager.RoleExistsAsync(roleName))
             {
-                await _roleManager.CreateAsync(new Role { Name = roleName });
+                await _roleManager.CreateAsync(new Role
+                {
+                    Name = roleName
+                });
             }
 
             var user = new User
@@ -71,11 +77,20 @@ namespace ThanyaProject.Controllers
                 Phone = model.PhoneNumber,
                 Age = DateTime.Now.Year - model.DateOfBirth.Year,
                 Gender = model.Gender,
-                UserType = 1,
-                //Role = roleName
+                UserType = 1
             };
 
+          
             var result = await _userManager.CreateAsync(user, model.Password);
+
+           
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+           
+            await _userManager.AddToRoleAsync(user, roleName);
+
+         
             var medicalRecord = new MedicalRecord
             {
                 UserId = user.Id,
@@ -86,17 +101,15 @@ namespace ThanyaProject.Controllers
             };
 
             _context.MedicalRecords.Add(medicalRecord);
+
             await _context.SaveChangesAsync();
 
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
-
-            await _userManager.AddToRoleAsync(user, roleName);
-
-            return Ok(new { Message = "User Registered Successfully", Email = user.Email, Role = roleName });
-
-
-
+            return Ok(new
+            {
+                Message = "User Registered Successfully",
+                Email = user.Email,
+                Role = roleName
+            });
         }
 
 
