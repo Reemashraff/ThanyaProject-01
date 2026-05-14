@@ -181,12 +181,14 @@ app.MapGet("/", context =>
     return Task.CompletedTask;
 });
 
-app.UseCors("AllowFrontend");
-
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
+
+app.UseRouting();
+
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
