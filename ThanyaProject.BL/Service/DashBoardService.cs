@@ -6,22 +6,26 @@ using System.Threading.Tasks;
 using ThanyaProject.BL.Service.IService;
 using ThanyaProject.DAL.Repository.IRepository;
 using ThanyaProject.Models.DTO;
+using ThanyaProject.Models.Model;
 
 namespace ThanyaProject.BL.Service
 {
     public class DashBoardService: IDashBoardService
     {
         private readonly IDeviceRepository _deviceRepository;
+        private readonly IMedicalRecordRepository _medicalRecordRepository;
 
-        public DashBoardService(IDeviceRepository deviceRepository)
+        public DashBoardService(IDeviceRepository deviceRepository, IMedicalRecordRepository medicalRecordRepository)
         {
             _deviceRepository = deviceRepository;
+            _medicalRecordRepository = medicalRecordRepository;
+
         }
 
         public async Task<UserDashboardDto> GetUserDashboardAsync(int userId)
         {
             var devices = await _deviceRepository.GetDevicesByUserIdAsync(userId);
-
+            var medicalRecord = await _medicalRecordRepository.GetMedicalRecordAsync(userId);
             return new UserDashboardDto
             {
                 TotalDevices = devices.Count,
@@ -36,7 +40,14 @@ namespace ThanyaProject.BL.Service
                     Lat = d.Lat,
                     Long = d.Long,
                     LastUpdate = d.LastUpdate
-                }).ToList()
+                }).ToList(),
+                MedicalRecord = medicalRecord == null ? null : new MedicalRecordDto
+                {
+                    BloodType = medicalRecord.BloodType,
+                    ChronicDiseases = medicalRecord.ChronicDiseases,
+                    Allergies = medicalRecord.Allergies,
+                    CurrentMedication = medicalRecord.CurrentMedication
+                }
             };
         }
         public async Task<AdminDashboardDto> GetAdminDashboardAsync()

@@ -45,12 +45,13 @@ builder.Services.AddScoped<IDashBoardService, DashBoardService>();
 builder.Services.AddScoped<IStoreService, StoreService>();
 builder.Services.AddScoped<IStripeService, StripeService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IContactUsService, ContactUsService>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProuctRepository>();
 builder.Services.AddScoped<ICartItemRepository, CartRepository>();
 builder.Services.AddScoped<IImageReository, ImageRepository>();
-builder.Services.AddScoped<IContactUsService, ContactUsService>();
+builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 
@@ -120,7 +121,9 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "http://localhost:3000",
-                "https://localhost:3000"
+                "http://localhost:5173",
+                "http://localhost:4200",
+                "https://thanya.netlify.app"
               )
               .AllowAnyHeader()
               .AllowAnyMethod()
@@ -169,9 +172,6 @@ using (var scope = app.Services.CreateScope())
     await DbSeed.SeedAdminAsync(userManager);
 }
 
-
-app.UseCors("AllowFrontend");
-
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -181,6 +181,7 @@ app.MapGet("/", context =>
     return Task.CompletedTask;
 });
 
+app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
 

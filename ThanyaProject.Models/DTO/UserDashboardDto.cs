@@ -13,6 +13,7 @@ namespace ThanyaProject.Models.DTO
             public int OfflineDevices { get; set; }
 
             public List<DevicrDashboardDto> Devices { get; set; }
+            public MedicalRecordDto? MedicalRecord { get; set; }
         
     }
 }

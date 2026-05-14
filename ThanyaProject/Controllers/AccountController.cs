@@ -55,10 +55,10 @@ namespace ThanyaProject.Controllers
             if (existingUser != null)
                 return BadRequest("Email already exists");
 
-            // أي حد يعمل Register يبقى User
+
             var roleName = "User";
 
-            // لو الرول مش موجود يتعمل
+         
             if (!await _roleManager.RoleExistsAsync(roleName))
             {
                 await _roleManager.CreateAsync(new Role
@@ -219,7 +219,23 @@ namespace ThanyaProject.Controllers
             });
         }
 
-
+        [HttpGet("Show medical")]
+        [Authorize]
+        public async Task<IActionResult> GetMedicalRecord()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var medical = await _context.MedicalRecords
+                .FirstOrDefaultAsync(m => m.UserId == userId);
+            if (medical == null)
+                return NotFound("Medical record not found");
+            return Ok(new
+            {
+                bloodType = medical.BloodType,
+                chronicDiseases = medical.ChronicDiseases,
+                allergies = medical.Allergies,
+                currentMedication = medical.CurrentMedication
+            });
+        }
 
         [HttpGet("me")]
         [Authorize]

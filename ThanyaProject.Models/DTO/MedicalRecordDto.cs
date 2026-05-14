@@ -10,7 +10,7 @@ using System.Threading.Tasks;
         public class MedicalRecordDto
         {
         [Required(ErrorMessage = "Blood type is required.")]
-            public string BloodType { get; set; }= null!;
+            public string? BloodType { get; set; }= null!;
 
             public string? ChronicDiseases { get; set; }
 
