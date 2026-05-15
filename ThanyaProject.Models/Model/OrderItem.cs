@@ -19,7 +19,7 @@ namespace ThanyaProject.Models.Model
         public int? PackageId { get; set; }
         public Pachage? Package { get; set; }
 
-        public int Quantity { get; set; }
+        public int? Quantity { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 

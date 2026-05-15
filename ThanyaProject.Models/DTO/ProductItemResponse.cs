@@ -15,5 +15,6 @@ namespace ThanyaProject.Models.DTO
         public string Currency { get; set; } = "EGP";
         public string ImageUrl { get; set; }
         public bool InStock { get; set; }
+        public int StockQuantity { get; set; } 
     }
 }

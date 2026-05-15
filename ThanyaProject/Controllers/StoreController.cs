@@ -197,6 +197,18 @@ namespace ThanyaProject.Controllers
             return Ok(cartItems);
         }
         [Authorize]
+        [HttpPut("cart/{productId}")]
+        public async Task<IActionResult> UpdateCartItem(int productId, int quantity)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            await _storeService.UpdateCartItemAsync(userId, productId, quantity);
+            return Ok(new
+            {
+                status = "success",
+                message = "Cart item updated successfully"
+            });
+        }
+        [Authorize]
         [HttpDelete("cart/{productId}")]
         public async Task<IActionResult> RemoveFromCart(int productId)
         {

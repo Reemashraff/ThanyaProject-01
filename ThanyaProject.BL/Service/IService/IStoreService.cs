@@ -25,6 +25,7 @@ namespace ThanyaProject.BL.Service.IService
         Task<Order?> GetOrderDetailsAsync(int orderId, int userId, bool isAdmin);
         Task CancelOrderAsync(int orderId, int userId, bool isAdmin);
         Task AddToCartAsync(int userId, int productId, int quantity);
+        Task UpdateCartItemAsync(int userId, int productId, int quantity);
         Task RemoveFromCartAsync(int userId, int productId);
         Task<IEnumerable<CartItemDto>> GetUserCartAsync(int userId);
         Task ClearCartAsync(int userId);

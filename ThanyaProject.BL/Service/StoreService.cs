@@ -107,7 +107,8 @@ namespace ThanyaProject.BL.Service
                 Price = p.Price,
                 Currency = p.Currency,
                 ImageUrl = p.Image != null ? p.Image.Url : null,
-                InStock = p.Stock > 0
+                InStock = p.Stock > 0,
+                StockQuantity = p.Stock
             });
         }
         public async Task<ProductDto?> GetProductByIdAsync(int id)
@@ -202,7 +203,7 @@ namespace ThanyaProject.BL.Service
                     Price = item.Product.Price
                 });
 
-                total += item.Product.Price * item.Quantity;
+                total += item.Product.Price * item.Quantity.GetValueOrDefault();
             }
             order.TotalPrice = total;
 
@@ -228,7 +229,7 @@ namespace ThanyaProject.BL.Service
             {
                 if (item.Product != null)
                 {
-                    item.Product.Stock -= item.Quantity;
+                    item.Product.Stock -= item.Quantity.GetValueOrDefault();
                 }
             }
 
@@ -283,7 +284,7 @@ namespace ThanyaProject.BL.Service
                 var product = await _productRepo.GetByIdAsync(item.ProductId);
                 if (product != null)
                 {
-                    product.Stock += item.Quantity;
+                    product.Stock += item.Quantity.GetValueOrDefault();
                 }
             }
 
@@ -332,8 +333,21 @@ namespace ThanyaProject.BL.Service
                 Price = c.Product.Price,
                 ImageUrl = c.Product.Image != null ? c.Product.Image.Url : null,
                 Quantity = c.Quantity,
-                Total = c.Product.Price * c.Quantity
+                Total = c.Product.Price * c.Quantity.GetValueOrDefault()
             });
+        }
+        public async Task UpdateCartItemAsync(int userId, int productId, int quantity)
+        {
+            var cartItem = await _cartRepo.GetCartItemAsync(userId, productId);
+            if (cartItem == null)
+                throw new Exception("Item not found in cart");
+            var product = await _productRepo.GetByIdAsync(productId);
+            if (product == null)
+                throw new Exception("Product not found");
+            if (product.Stock < quantity)
+                throw new Exception("Not enough stock");
+            cartItem.Quantity = quantity;
+            await _cartRepo.UpdateAsync(cartItem);
         }
         public async Task RemoveFromCartAsync(int userId, int productId)
         {

@@ -90,7 +90,18 @@ namespace ThanyaProject.Controllers
            
             await _userManager.AddToRoleAsync(user, roleName);
 
-         
+            var roles = await _userManager.GetRolesAsync(user);
+            var token = _jwtService.CreateToken(user, roles);
+
+            Response.Cookies.Append("token", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddDays(7)
+            });
+
+
             var medicalRecord = new MedicalRecord
             {
                 UserId = user.Id,
@@ -106,9 +117,13 @@ namespace ThanyaProject.Controllers
 
             return Ok(new
             {
-                Message = "User Registered Successfully",
-                Email = user.Email,
-                Role = roleName
+                status = "success",
+                token = token,
+                data = new
+                {
+                    email = user.Email,
+                    role = roleName
+                }
             });
         }
 
@@ -166,7 +181,12 @@ namespace ThanyaProject.Controllers
         [HttpPost("Logout")]
         public async Task<IActionResult> Logout()
         {
-            Response.Cookies.Delete("token");
+            Response.Cookies.Delete("token", new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None
+            });
             await _signInManager.SignOutAsync();
             return Ok(new { Message = "Logout successful!" });
         }
