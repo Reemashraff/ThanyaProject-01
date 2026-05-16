@@ -7,4 +7,5 @@ public interface IDeviceService
     Task<Device> CreateAsync(DeviceCreateDto dto, int userId);
     Task<bool> UpdateAsync(int id, DeviceCreateDto device, int userId);
     Task<bool> DeleteAsync(int Deviceid, int userId);
+    Task<bool> UpdateFromBandAsync(int id, DeviceBandUpdateDto dto,int userId);
 }

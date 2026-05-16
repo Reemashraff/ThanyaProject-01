@@ -61,22 +61,33 @@ namespace ThanyaProject.Controllers
             });
         }
 
-        [HttpPut("UpateDevice{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] DeviceCreateDto device)
+        [Authorize]
+        [HttpPut("band-update/{id}")]
+        public async Task<IActionResult> UpdateFromBand(int id, [FromBody] DeviceBandUpdateDto dto)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
-            var result = await _service.UpdateAsync(id, device, userId);
+            var userId = GetIdFromToken();
+            if (userId == -1)
+                return Unauthorized(new { status = "error", message = "Unauthorized User" });
+
+            var result = await _service.UpdateFromBandAsync(id, dto, userId);
 
             if (!result)
-                return NotFound(new { status = "error", message = "Device not found" });
+            {
+                return NotFound(new
+                {
+                    status = "error",
+                    message = "Device not found or does not belong to this user!"
+                });
+            }
 
             return Ok(new
             {
                 status = "success",
-                message = "Device updated successfully"
+                message = "Band data updated successfully"
             });
         }
+
         [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
@@ -94,7 +105,8 @@ namespace ThanyaProject.Controllers
                 message = "Device deleted successfully"
             });
         }
+        
         #endregion
-     
+
     }
 }

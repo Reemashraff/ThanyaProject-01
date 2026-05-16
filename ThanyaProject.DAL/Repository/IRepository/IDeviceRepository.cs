@@ -11,5 +11,6 @@ namespace ThanyaProject.DAL.Repository.IRepository
     {
         Task<List<Device>> GetDevicesByUserIdAsync(int userId);
         Task<int> GetDeviceCountByUserIdAsync(int userId);
+        Task<Device?> GetByDeviceIdAsync(string deviceId);
     }
 }

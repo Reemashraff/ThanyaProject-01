@@ -219,6 +219,9 @@ namespace ThanyaProject.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("HeartRate")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("datetime2");
 
@@ -231,6 +234,9 @@ namespace ThanyaProject.DAL.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OxygenLevel")
+                        .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()

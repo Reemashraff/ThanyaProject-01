@@ -281,6 +281,8 @@ namespace ThanyaProject.Controllers
                 id = user.Id,
                 name = user.FirstName + " " + user.LastName,
                 email = user.Email,
+                age = user.Age,
+                gender = user.Gender,
                 role = roles.FirstOrDefault(),
 
                 medicalRecord = new

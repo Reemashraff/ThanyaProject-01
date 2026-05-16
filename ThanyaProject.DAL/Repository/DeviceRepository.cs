@@ -20,6 +20,7 @@ namespace ThanyaProject.DAL.Repository
         public async Task<List<Device>> GetDevicesByUserIdAsync(int userId)
         {
             return await _context.Devices
+                .AsNoTracking()
                 .Where(d => d.UserId == userId)
                 .ToListAsync();
         }
@@ -28,6 +29,11 @@ namespace ThanyaProject.DAL.Repository
         {
             return await _context.Devices
                 .CountAsync(d => d.UserId == userId);
+        }
+        public async Task<Device?> GetByDeviceIdAsync(string deviceId)
+        {
+            return await _context.Devices
+                .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
         }
     }
 }

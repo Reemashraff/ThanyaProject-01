@@ -13,14 +13,21 @@ namespace ThanyaProject.Models.DTO
         public string DeviceId { get; set; }
 
         public string Name { get; set; }
+
         public string Status { get; set; }
+
         public int Battery { get; set; }
+
+        [JsonPropertyName("heart_rate")]
+        public int HeartRate { get; set; }
+
+        [JsonPropertyName("oxygen_level")]
+        public int OxygenLevel { get; set; }
 
         [JsonPropertyName("last_location")]
         public LocationDto LastLocation { get; set; }
 
         [JsonPropertyName("last_update")]
         public string LastUpdate { get; set; }
-
     }
 }

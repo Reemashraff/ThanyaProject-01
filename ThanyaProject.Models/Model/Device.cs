@@ -16,6 +16,8 @@ namespace ThanyaProject.Models.Model
         public string Status { get; set; }
         public float Long { get; set; }
         public float Lat { get; set; }
+        public int HeartRate { get; set; }
+        public int OxygenLevel { get; set; }
         public DateTime LastUpdate { get; set; }
         public int UserId { get; set; }
         public User User { get; set; }

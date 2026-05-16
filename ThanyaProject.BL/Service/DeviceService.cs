@@ -37,6 +37,8 @@ namespace ThanyaProject.BL.Service
                 Status = "Offline",
                 Lat = 0,
                 Long = 0,
+                HeartRate = 0,
+                OxygenLevel = 0,
                 LastUpdate = DateTime.UtcNow
             };
 
@@ -71,6 +73,27 @@ namespace ThanyaProject.BL.Service
                 return false;
 
             await _repository.DeleteAsync(device);
+
+            return true;
+        }
+        public async Task<bool> UpdateFromBandAsync(int id,DeviceBandUpdateDto dto, int userId)
+        {
+            var device = await _repository.GetByIdAsync(id);
+
+            if (device == null || device.UserId != userId)
+                return false;
+
+            device.Battery = dto.Battery;
+            device.Lat = dto.Lat;
+            device.Long = dto.Long;
+            device.HeartRate = dto.HeartRate;
+            device.OxygenLevel = dto.OxygenLevel;
+            device.LastUpdate = DateTime.UtcNow;
+
+            device.Status = dto.Battery > 0 ? "Online" : "Offline";
+
+
+            await _repository.UpdateAsync(device);
 
             return true;
         }
