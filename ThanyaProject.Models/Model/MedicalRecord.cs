@@ -17,6 +17,7 @@ namespace ThanyaProject.Models.Model
         public string? ChronicDiseases { get; set; }
         public string? Allergies { get; set; }
         public string? CurrentMedication { get; set; }
+        public string? Weight { get; set; }
 
         public User User { get; set; } = null!;
 

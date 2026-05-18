@@ -25,5 +25,6 @@ namespace ThanyaProject.Models.DTO
         public string ChronicDiseases { get; set; } = null!;
         public string Allergies { get; set; } = null!;
         public string CurrentMedication { get; set; } = null!;
+        public string Weight { get; set; }
     }
 }

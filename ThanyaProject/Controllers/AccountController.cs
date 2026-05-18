@@ -108,7 +108,8 @@ namespace ThanyaProject.Controllers
                 BloodType = model.BloodType,
                 ChronicDiseases = model.ChronicDiseases,
                 Allergies = model.Allergies,
-                CurrentMedication = model.CurrentMedication
+                CurrentMedication = model.CurrentMedication,
+                Weight = model.Weight
             };
 
             _context.MedicalRecords.Add(medicalRecord);
@@ -191,7 +192,134 @@ namespace ThanyaProject.Controllers
             return Ok(new { Message = "Logout successful!" });
         }
 
+        [HttpPut("update")]
+        [Authorize]
+        public async Task<IActionResult> UpdateDataUser([FromBody] UpdateUserDto model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            if (userId == null)
+                return Unauthorized();
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+                return NotFound(new
+                {
+                    status = "error",
+                    message = "User not found"
+                });
+
+            if (!string.IsNullOrWhiteSpace(model.FirstName))
+                user.FirstName = model.FirstName;
+
+            if (!string.IsNullOrWhiteSpace(model.LastName))
+                user.LastName = model.LastName;
+
+            if (!string.IsNullOrWhiteSpace(model.Phone))
+                user.Phone = model.Phone;
+
+            if (!string.IsNullOrWhiteSpace(model.Address))
+                user.Address = model.Address;
+
+            if (!string.IsNullOrWhiteSpace(model.Gender))
+                user.Gender = model.Gender;
+
+            if (!string.IsNullOrWhiteSpace(model.Email))
+            {
+                var emailExists = await _userManager.Users
+                    .AnyAsync(x => x.Email == model.Email && x.Id != user.Id);
+
+                if (emailExists)
+                {
+                    return BadRequest(new
+                    {
+                        status = "error",
+                        message = "Email already exists"
+                    });
+                }
+
+                user.Email = model.Email;
+                user.UserName = model.Email;
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    errors = result.Errors.Select(e => e.Description)
+                });
+            }
+
+            return Ok(new
+            {
+                status = "success",
+                message = "User updated successfully",
+                data = new
+                {
+                    id = user.Id,
+                    firstName = user.FirstName,
+                    lastName = user.LastName,
+                    email = user.Email,
+                    phone = user.Phone,
+                    address = user.Address,
+                    gender = user.Gender
+                }
+            });
+        }
+
+        [HttpPut("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+                return Unauthorized();
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return NotFound(new
+                {
+                    status = "error",
+                    message = "User not found"
+                });
+            }
+
+            if (model.NewPassword != model.ConfirmPassword)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Passwords do not match"
+                });
+            }
+
+            var result = await _userManager.ChangePasswordAsync(
+                user,
+                model.CurrentPassword,
+                model.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    errors = result.Errors.Select(e => e.Description)
+                });
+            }
+
+            return Ok(new
+            {
+                status = "success",
+                message = "Password changed successfully"
+            });
+        }
 
         [HttpPut("medical/update")]
         [Authorize(Roles = "User")]
@@ -223,7 +351,8 @@ namespace ThanyaProject.Controllers
 
             if (!string.IsNullOrWhiteSpace(model.CurrentMedication))
                 medical.CurrentMedication = model.CurrentMedication;
-
+            if (!string.IsNullOrWhiteSpace(model.Weight))
+                medical.Weight = model.Weight;
             await _context.SaveChangesAsync();
 
             return Ok(new
@@ -234,7 +363,8 @@ namespace ThanyaProject.Controllers
                     bloodType = medical.BloodType,
                     chronicDiseases = medical.ChronicDiseases,
                     allergies = medical.Allergies,
-                    currentMedication = medical.CurrentMedication
+                    currentMedication = medical.CurrentMedication,
+                    Weight = medical.Weight
                 }
             });
         }
@@ -253,7 +383,8 @@ namespace ThanyaProject.Controllers
                 bloodType = medical.BloodType,
                 chronicDiseases = medical.ChronicDiseases,
                 allergies = medical.Allergies,
-                currentMedication = medical.CurrentMedication
+                currentMedication = medical.CurrentMedication,
+                Weight = medical.Weight
             });
         }
 
@@ -290,7 +421,8 @@ namespace ThanyaProject.Controllers
                     bloodType = medical?.BloodType,
                     chronicDiseases = medical?.ChronicDiseases,
                     allergies = medical?.Allergies,
-                    currentMedication = medical?.CurrentMedication
+                    currentMedication = medical?.CurrentMedication,
+                    Weight = medical?.Weight
                 }
             });
         }
