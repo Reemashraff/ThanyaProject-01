@@ -12,8 +12,8 @@ using ThanyaProject.DAL.Data;
 namespace ThanyaProject.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260517224420_new")]
-    partial class @new
+    [Migration("20260519150145_NewProject")]
+    partial class NewProject
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -297,18 +297,11 @@ namespace ThanyaProject.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ContactId"));
 
-                    b.Property<bool>("IsPreferred")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Relation")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

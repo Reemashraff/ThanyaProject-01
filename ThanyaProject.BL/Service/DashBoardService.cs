@@ -46,7 +46,8 @@ namespace ThanyaProject.BL.Service
                     BloodType = medicalRecord.BloodType,
                     ChronicDiseases = medicalRecord.ChronicDiseases,
                     Allergies = medicalRecord.Allergies,
-                    CurrentMedication = medicalRecord.CurrentMedication
+                    CurrentMedication = medicalRecord.CurrentMedication,
+                    Weight = medicalRecord.Weight
                 }
             };
         }

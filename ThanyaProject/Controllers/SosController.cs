@@ -28,6 +28,30 @@ public class SosController : ControllerBase
 
         if (device == null)
             return NotFound("Device not found");
+        var userId = device.UserId;
+
+        var contacts = _context.EmergancyContacts
+            .Where(c => c.UserId == userId)
+            .ToList();
+
+        foreach (var contact in contacts)
+        {
+            var contactNotification = new Notification
+            {
+                UserId = userId,
+                DeviceId = device.Id,
+                Message = $"SOS Alert sent to {contact.Name}",
+                DateCreated = DateTime.UtcNow,
+                Type = "emergency",
+                Latitude = request.Location.Lat,
+                Longitude = request.Location.Long,
+                IsRead = false,
+                Resolved = false
+            };
+
+            _context.Notifications.Add(contactNotification);
+        }
+
 
         var notification = new Notification
         {
@@ -68,7 +92,10 @@ public class SosController : ControllerBase
     [HttpGet("notifications")]
     public IActionResult GetNotifications()
     {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
         var notifications = _context.Notifications
+            .Where(n => n.UserId == userId)
             .OrderByDescending(n => n.DateCreated)
             .ToList();
 

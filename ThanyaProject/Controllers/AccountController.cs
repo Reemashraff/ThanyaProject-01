@@ -364,7 +364,7 @@ namespace ThanyaProject.Controllers
                     chronicDiseases = medical.ChronicDiseases,
                     allergies = medical.Allergies,
                     currentMedication = medical.CurrentMedication,
-                    Weight = medical.Weight
+                    weight = medical.Weight
                 }
             });
         }

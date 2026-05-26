@@ -21,10 +21,10 @@ namespace ThanyaProject.Models.DTO
         public string Address { get; set; } = null!;
         public string Gender { get; set; } = null!;
         //public string Status { get; set; } = "User";
-        public string BloodType { get; set; } = null!;
-        public string ChronicDiseases { get; set; } = null!;
-        public string Allergies { get; set; } = null!;
-        public string CurrentMedication { get; set; } = null!;
-        public string Weight { get; set; }
+        public string? BloodType { get; set; } = null!;
+        public string? ChronicDiseases { get; set; } = null!;
+        public string? Allergies { get; set; } = null!;
+        public string? CurrentMedication { get; set; } = null!;
+        public string? Weight { get; set; }
     }
 }

@@ -14,8 +14,8 @@ namespace ThanyaProject.Models.Model
         public int ContactId { get; set; }
         public int UserId { get; set; }
         public string Name { get; set; } = null!;
-        public string Relation { get; set; } = null!;
-        public bool IsPreferred { get; set; } = false;
+       // public string Relation { get; set; } = null!;
+       // public bool IsPreferred { get; set; } = false;
         public string Phone { get; set; } = null!;
 
         public User User { get; set; } = null!;
