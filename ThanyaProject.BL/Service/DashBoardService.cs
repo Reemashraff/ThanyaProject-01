@@ -47,7 +47,8 @@ namespace ThanyaProject.BL.Service
                     ChronicDiseases = medicalRecord.ChronicDiseases,
                     Allergies = medicalRecord.Allergies,
                     CurrentMedication = medicalRecord.CurrentMedication,
-                    Weight = medicalRecord.Weight
+                    Weight = medicalRecord.Weight,
+                    Summery = medicalRecord.Summery
                 }
             };
         }

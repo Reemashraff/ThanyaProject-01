@@ -96,6 +96,11 @@ namespace ThanyaProject.DAL.Data
                 .WithMany(u => u.MedicalRecords)
                 .HasForeignKey(m => m.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<MedicalRecord>()
+                .HasMany(x => x.MedicalImages)
+                .WithOne(x => x.MedicalRecord)
+                .HasForeignKey(x => x.MedicalRecordId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<InjuryRecords>()
                 .HasOne(i => i.User)
@@ -149,12 +154,12 @@ namespace ThanyaProject.DAL.Data
             .HasOne(c => c.User)
             .WithMany(u => u.CartItems)
             .HasForeignKey(c => c.UserId)
-            .OnDelete(DeleteBehavior.Restrict); // يمنع cascade
+            .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Product>()
-            .HasOne(x => x.Image)
-            .WithMany()
-            .HasForeignKey(x => x.ImageId)
-            .OnDelete(DeleteBehavior.NoAction);
+           .HasOne(p => p.Image)
+           .WithOne()
+           .HasForeignKey<Product>(p => p.ImageId)
+           .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

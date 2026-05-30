@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -18,6 +19,9 @@ using System.Threading.Tasks;
 
             public string? CurrentMedication { get; set; }
             public string Weight { get; set; }
+            public string Summery { get; set; }
+            //public string ImageUrl { get; set; }
+            //public IFormFile FormFile { get; set; }
     }
     }
 

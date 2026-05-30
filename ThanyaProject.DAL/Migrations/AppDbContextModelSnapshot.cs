@@ -368,6 +368,9 @@ namespace ThanyaProject.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("MedicalRecordId")
+                        .HasColumnType("int");
+
                     b.Property<string>("PublicId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -377,6 +380,8 @@ namespace ThanyaProject.DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MedicalRecordId");
 
                     b.ToTable("Images");
                 });
@@ -429,6 +434,9 @@ namespace ThanyaProject.DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CurrentMedication")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Summery")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
@@ -606,7 +614,7 @@ namespace ThanyaProject.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ImageId")
+                    b.Property<int?>("ImageId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -621,7 +629,9 @@ namespace ThanyaProject.DAL.Migrations
 
                     b.HasKey("ProductId");
 
-                    b.HasIndex("ImageId");
+                    b.HasIndex("ImageId")
+                        .IsUnique()
+                        .HasFilter("[ImageId] IS NOT NULL");
 
                     b.ToTable("Products");
                 });
@@ -913,6 +923,16 @@ namespace ThanyaProject.DAL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ThanyaProject.Models.Model.Image", b =>
+                {
+                    b.HasOne("ThanyaProject.Models.Model.MedicalRecord", "MedicalRecord")
+                        .WithMany("MedicalImages")
+                        .HasForeignKey("MedicalRecordId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("MedicalRecord");
+                });
+
             modelBuilder.Entity("ThanyaProject.Models.Model.InjuryRecords", b =>
                 {
                     b.HasOne("ThanyaProject.Models.Model.Doctor", "Doctor")
@@ -1016,10 +1036,9 @@ namespace ThanyaProject.DAL.Migrations
             modelBuilder.Entity("ThanyaProject.Models.Model.Product", b =>
                 {
                     b.HasOne("ThanyaProject.Models.Model.Image", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .WithOne()
+                        .HasForeignKey("ThanyaProject.Models.Model.Product", "ImageId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Image");
                 });
@@ -1066,6 +1085,11 @@ namespace ThanyaProject.DAL.Migrations
             modelBuilder.Entity("ThanyaProject.Models.Model.Hospital", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("ThanyaProject.Models.Model.MedicalRecord", b =>
+                {
+                    b.Navigation("MedicalImages");
                 });
 
             modelBuilder.Entity("ThanyaProject.Models.Model.Order", b =>

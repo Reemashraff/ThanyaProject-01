@@ -3,8 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text;
+using ThanyaProject.BL.Service;
+using ThanyaProject.BL.Service.IService;
 using ThanyaProject.DAL.Data;
 using ThanyaProject.Models.DTO;
 using ThanyaProject.Models.Enums;
@@ -21,6 +24,7 @@ namespace ThanyaProject.Controllers
         private readonly RoleManager<Role> _roleManager;
         private readonly SignInManager<User> _signInManager;
         private readonly JwtService _jwtService;
+        private readonly IImageService _imageService;
         private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _env;
 
@@ -30,7 +34,8 @@ namespace ThanyaProject.Controllers
             SignInManager<User> signInManager,
             JwtService jwtService,
             IWebHostEnvironment env,
-             AppDbContext context)
+             AppDbContext context,
+             IImageService imageService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -38,14 +43,14 @@ namespace ThanyaProject.Controllers
             _jwtService = jwtService;
             _env = env;
             _context = context;
-
+            _imageService = imageService;
         }
 
 
 
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody] Registeration model)
+        public async Task<IActionResult> Register([FromForm] Registeration model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -101,7 +106,7 @@ namespace ThanyaProject.Controllers
                 Expires = DateTime.UtcNow.AddDays(7)
             });
 
-
+           
             var medicalRecord = new MedicalRecord
             {
                 UserId = user.Id,
@@ -109,12 +114,32 @@ namespace ThanyaProject.Controllers
                 ChronicDiseases = model.ChronicDiseases,
                 Allergies = model.Allergies,
                 CurrentMedication = model.CurrentMedication,
-                Weight = model.Weight
+                Weight = model.Weight,
+                Summery = model.Summery
             };
 
             _context.MedicalRecords.Add(medicalRecord);
 
             await _context.SaveChangesAsync();
+            if (model.MedicalImages != null && model.MedicalImages.Any())
+            {
+                foreach (var file in model.MedicalImages)
+                {
+                    var uploadResult =
+                        await _imageService.UploadImageAsync(file);
+
+                    var image = new Image
+                    {
+                        Url = uploadResult.SecureUrl.ToString(),
+                        PublicId = uploadResult.PublicId,
+                        MedicalRecordId = medicalRecord.RecordId
+                    };
+
+                    _context.Images.Add(image);
+                }
+
+                await _context.SaveChangesAsync();
+            }   
 
             return Ok(new
             {
@@ -353,6 +378,8 @@ namespace ThanyaProject.Controllers
                 medical.CurrentMedication = model.CurrentMedication;
             if (!string.IsNullOrWhiteSpace(model.Weight))
                 medical.Weight = model.Weight;
+            if (!string.IsNullOrWhiteSpace(model.Summery))
+                medical.Summery = model.Summery;
             await _context.SaveChangesAsync();
 
             return Ok(new
@@ -364,18 +391,78 @@ namespace ThanyaProject.Controllers
                     chronicDiseases = medical.ChronicDiseases,
                     allergies = medical.Allergies,
                     currentMedication = medical.CurrentMedication,
-                    weight = medical.Weight
+                    weight = medical.Weight,
+                    summery = medical.Summery
                 }
             });
         }
+        [HttpPatch("medical/update-images")]
+        [Authorize]
+        public async Task<IActionResult> UpdateMedicalImages([FromForm] UpdateImageMedical model)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
+            var medical = await _context.MedicalRecords
+                .Include(x => x.MedicalImages)
+                .FirstOrDefaultAsync(x => x.UserId == userId);
+
+            if (medical == null)
+                return NotFound("Medical record not found");
+
+            // =========================
+            // 1️⃣ DELETE IMAGES
+            // =========================
+            if (model.DeleteImageIds != null && model.DeleteImageIds.Any())
+            {
+                var imagesToDelete = medical.MedicalImages
+                    .Where(x => x.MedicalRecordId == medical.RecordId)
+                    .Where(x => model.DeleteImageIds!.Contains(x.Id))
+                    .ToList();
+
+                foreach (var img in imagesToDelete)
+                {
+                    await _imageService.DeleteImageAsync(img.PublicId);
+                    _context.Images.Remove(img);
+                }
+            }
+            await _context.SaveChangesAsync();
+
+            // =========================
+            // 2️⃣ ADD NEW IMAGES
+            // =========================
+            if (model.NewImages != null && model.NewImages.Any())
+            {
+                foreach (var file in model.NewImages)
+                {
+                    var upload = await _imageService.UploadImageAsync(file);
+
+                    var image = new Image
+                    {
+                        Url = upload.SecureUrl.ToString(),
+                        PublicId = upload.PublicId,
+                        MedicalRecordId = medical.RecordId
+                    };
+
+                    _context.Images.Add(image);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                status = "success",
+                message = "Medical images updated successfully"
+            });
+        }
         [HttpGet("Show medical")]
         [Authorize]
         public async Task<IActionResult> GetMedicalRecord()
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var medical = await _context.MedicalRecords
-                .FirstOrDefaultAsync(m => m.UserId == userId);
+            .Include(m => m.MedicalImages)
+            .FirstOrDefaultAsync(m => m.UserId == userId);
             if (medical == null)
                 return NotFound("Medical record not found");
             return Ok(new
@@ -384,7 +471,9 @@ namespace ThanyaProject.Controllers
                 chronicDiseases = medical.ChronicDiseases,
                 allergies = medical.Allergies,
                 currentMedication = medical.CurrentMedication,
-                Weight = medical.Weight
+                weight = medical.Weight,
+                summery = medical.Summery,
+                image = medical.MedicalImages
             });
         }
 
@@ -404,9 +493,10 @@ namespace ThanyaProject.Controllers
 
             var roles = await _userManager.GetRolesAsync(user);
 
-            var medical = _context.MedicalRecords
-                .FirstOrDefault(m => m.UserId == user.Id);
-
+            var medical = await _context.MedicalRecords
+            .Include(m => m.MedicalImages)
+            .FirstOrDefaultAsync(m => m.UserId == user.Id);
+ 
             return Ok(new
             {
                 id = user.Id,
@@ -422,7 +512,10 @@ namespace ThanyaProject.Controllers
                     chronicDiseases = medical?.ChronicDiseases,
                     allergies = medical?.Allergies,
                     currentMedication = medical?.CurrentMedication,
-                    Weight = medical?.Weight
+                    weight = medical?.Weight,
+                    summery = medical?.Summery,
+                    image = medical?.MedicalImages
+                    
                 }
             });
         }

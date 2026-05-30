@@ -62,6 +62,45 @@ namespace ThanyaProject.DAL.Data
             }
         }
 
+        public static async Task SeedParamedicAsync(UserManager<User> userManager)
+        {
+            var ParamedicEmail = "Emergancy@Gmail.com";
+
+            var Paramedic = await userManager.FindByEmailAsync(ParamedicEmail);
+
+            if (Paramedic == null)
+            {
+                var newParamedic = new User
+                {
+                    UserName = ParamedicEmail,
+                    Email = ParamedicEmail,
+                    EmailConfirmed = true,
+
+                    FirstName = "System",
+                    LastName = "Paramedic",
+                    Age = 20,
+                    Gender = "Male",
+                    Phone = "0107114103",
+                    National_ID = 123456789,
+                    Address = "Alex",
+
+                    Latitude = 30.0444m,
+                    Longitude = 31.2357m,
+
+                    Specialty_ID = 1,
+                    Hospital_ID = 1,
+                    UserType = 0
+                };
+
+                var result = await userManager.CreateAsync(newParamedic, "Emergancy@123");
+
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(newParamedic, "Paramedic");
+                }
+            }
+        }
+
     }
-    
+
 }

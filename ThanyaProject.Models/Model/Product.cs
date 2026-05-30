@@ -23,9 +23,9 @@ namespace ThanyaProject.Models.Model
         public string Description { get; set; } = null!;
         public string Currency { get; set; } = "EGP";
         //public string ImgUrl { get; set; }
-        public int ImageId { get; set; }
+        public int? ImageId { get; set; }
         [AllowNull]
-        public Image Image { get; set; }
+        public Image? Image { get; set; }
         [JsonIgnore]
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 

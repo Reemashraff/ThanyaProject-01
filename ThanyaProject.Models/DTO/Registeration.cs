@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -26,5 +27,7 @@ namespace ThanyaProject.Models.DTO
         public string? Allergies { get; set; } = null!;
         public string? CurrentMedication { get; set; } = null!;
         public string? Weight { get; set; }
+        public string? Summery { get; set; }
+        public List<IFormFile>? MedicalImages { get; set; }
     }
 }
