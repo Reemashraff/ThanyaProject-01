@@ -473,7 +473,11 @@ namespace ThanyaProject.Controllers
                 currentMedication = medical.CurrentMedication,
                 weight = medical.Weight,
                 summery = medical.Summery,
-                image = medical.MedicalImages
+                image = medical.MedicalImages.Select(x => new
+                {
+                    x.Id,
+                    x.Url
+                })
             });
         }
 
@@ -514,8 +518,12 @@ namespace ThanyaProject.Controllers
                     currentMedication = medical?.CurrentMedication,
                     weight = medical?.Weight,
                     summery = medical?.Summery,
-                    image = medical?.MedicalImages
-                    
+                    image = medical.MedicalImages.Select(x => new
+                    {
+                        x.Id,
+                        x.Url
+                    })
+
                 }
             });
         }
