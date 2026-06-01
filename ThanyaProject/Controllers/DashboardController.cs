@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using ThanyaProject.BL.Service.IService;
+using ThanyaProject.DAL.Data;
 
 namespace ThanyaProject.Controllers
 {
@@ -12,10 +14,12 @@ namespace ThanyaProject.Controllers
     {
 
         private readonly IDashBoardService _dashboardService;
+        private readonly AppDbContext _context;
 
-        public DashboardController(IDashBoardService dashboardService)
+        public DashboardController(IDashBoardService dashboardService, AppDbContext context)
         {
             _dashboardService = dashboardService;
+            _context = context;
         }
 
         [HttpGet("user")]

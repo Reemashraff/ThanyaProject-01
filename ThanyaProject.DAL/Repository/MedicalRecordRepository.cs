@@ -22,7 +22,9 @@ namespace ThanyaProject.DAL.Repository
 
         public async Task<MedicalRecord?> GetMedicalRecordAsync(int userId)
         {
-            return await _context.MedicalRecords.FirstOrDefaultAsync(m => m.UserId == userId);
+            return await _context.MedicalRecords
+                                 .Include(m => m.MedicalImages)
+                                 .FirstOrDefaultAsync(m => m.UserId == userId);
         }
     }
 }

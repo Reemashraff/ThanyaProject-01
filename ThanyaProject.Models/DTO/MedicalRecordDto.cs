@@ -5,8 +5,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ThanyaProject.Models.Model;
 
-    namespace ThanyaProject.Models.DTO
+namespace ThanyaProject.Models.DTO
     {
         public class MedicalRecordDto
         {
@@ -20,8 +21,9 @@ using System.Threading.Tasks;
             public string? CurrentMedication { get; set; }
             public string Weight { get; set; }
             public string Summery { get; set; }
-            //public string ImageUrl { get; set; }
-            //public IFormFile FormFile { get; set; }
+            public List<Image> Images { get; set; } 
+        //public string ImageUrl { get; set; }
+        //public IFormFile FormFile { get; set; }
     }
     }
 
