@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ThanyaProject.Models.Model;
 
 namespace ThanyaProject.Models.DTO
 {
@@ -13,7 +14,7 @@ namespace ThanyaProject.Models.DTO
             public int OfflineDevices { get; set; }
 
             public List<DevicrDashboardDto> Devices { get; set; }
-            public MedicalRecordDto? MedicalRecord { get; set; }
+            public MedicalRecord? MedicalRecord { get; set; }
         
     }
 }

@@ -396,55 +396,94 @@ namespace ThanyaProject.Controllers
                 }
             });
         }
-        [HttpPatch("medical/update-images")]
+        //[HttpPatch("medical/update-images")]
+        //[Authorize]
+        //public async Task<IActionResult> UpdateMedicalImages([FromForm] UpdateImageMedical model)
+        //{
+        //    var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        //    var medical = await _context.MedicalRecords
+        //        .Include(x => x.MedicalImages)
+        //        .FirstOrDefaultAsync(x => x.UserId == userId);
+
+        //    if (medical == null)
+        //        return NotFound("Medical record not found");
+
+        //    // =========================
+        //    // 1️⃣ DELETE IMAGES
+        //    // =========================
+        //    if (model.DeleteImageIds != null && model.DeleteImageIds.Count != 0)
+        //    {
+        //        var imagesToDelete = medical.MedicalImages
+        //            .Where(x => x.MedicalRecordId == medical.RecordId)
+        //            .Where(x => model.DeleteImageIds!.Contains(x.Id))
+        //            .ToList();
+
+        //        foreach (var img in imagesToDelete)
+        //        {
+        //            await _imageService.DeleteImageAsync(img.PublicId);
+        //            _context.Images.Remove(img);
+        //        }
+        //    }
+        //    await _context.SaveChangesAsync();
+
+        //    // =========================
+        //    // 2️⃣ ADD NEW IMAGES
+        //    // =========================
+        //    if (model.NewImages != null && model.NewImages.Any())
+        //    {
+        //        foreach (var file in model.NewImages)
+        //        {
+        //            var upload = await _imageService.UploadImageAsync(file);
+
+        //            var image = new Image
+        //            {
+        //                Url = upload.SecureUrl.ToString(),
+        //                PublicId = upload.PublicId,
+        //                MedicalRecordId = medical.RecordId
+        //            };
+
+        //            _context.Images.Add(image);
+        //        }
+        //    }
+
+        //    await _context.SaveChangesAsync();
+
+        //    return Ok(new
+        //    {
+        //        status = "success",
+        //        message = "Medical images updated successfully"
+        //    });
+        //}
+
+        [HttpPost("medical/add-images")]
         [Authorize]
-        public async Task<IActionResult> UpdateMedicalImages([FromForm] UpdateImageMedical model)
+        public async Task<IActionResult> AddMedicalImages([FromForm] AddNewImageDto model)
         {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var userId = int.Parse(
+                User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
             var medical = await _context.MedicalRecords
-                .Include(x => x.MedicalImages)
                 .FirstOrDefaultAsync(x => x.UserId == userId);
 
             if (medical == null)
                 return NotFound("Medical record not found");
 
-            // =========================
-            // 1️⃣ DELETE IMAGES
-            // =========================
-            if (model.DeleteImageIds != null && model.DeleteImageIds.Any())
+            if (model.Images == null || !model.Images.Any())
+                return BadRequest("No images uploaded");
+
+            foreach (var file in model.Images)
             {
-                var imagesToDelete = medical.MedicalImages
-                    .Where(x => x.MedicalRecordId == medical.RecordId)
-                    .Where(x => model.DeleteImageIds!.Contains(x.Id))
-                    .ToList();
+                var upload = await _imageService.UploadImageAsync(file);
 
-                foreach (var img in imagesToDelete)
+                var image = new Image
                 {
-                    await _imageService.DeleteImageAsync(img.PublicId);
-                    _context.Images.Remove(img);
-                }
-            }
-            await _context.SaveChangesAsync();
+                    Url = upload.SecureUrl.ToString(),
+                    PublicId = upload.PublicId,
+                    MedicalRecordId = medical.RecordId
+                };
 
-            // =========================
-            // 2️⃣ ADD NEW IMAGES
-            // =========================
-            if (model.NewImages != null && model.NewImages.Any())
-            {
-                foreach (var file in model.NewImages)
-                {
-                    var upload = await _imageService.UploadImageAsync(file);
-
-                    var image = new Image
-                    {
-                        Url = upload.SecureUrl.ToString(),
-                        PublicId = upload.PublicId,
-                        MedicalRecordId = medical.RecordId
-                    };
-
-                    _context.Images.Add(image);
-                }
+                _context.Images.Add(image);
             }
 
             await _context.SaveChangesAsync();
@@ -452,9 +491,32 @@ namespace ThanyaProject.Controllers
             return Ok(new
             {
                 status = "success",
-                message = "Medical images updated successfully"
+                message = "Images added successfully"
             });
         }
+        [HttpDelete("medical/delete-image/{imageId}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteMedicalImage(int imageId)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var medical = await _context.MedicalRecords
+                .Include(m => m.MedicalImages)
+                .FirstOrDefaultAsync(m => m.UserId == userId);
+            if (medical == null)
+                return NotFound("Medical record not found");
+            var image = medical.MedicalImages.FirstOrDefault(i => i.Id == imageId);
+            if (image == null)
+                return NotFound("Image not found");
+            await _imageService.DeleteImageAsync(image.PublicId);
+            _context.Images.Remove(image);
+            await _context.SaveChangesAsync();
+            return Ok(new
+            {
+                status = "success",
+                message = "Image deleted successfully"
+            });
+        }
+
         [HttpGet("Show medical")]
         [Authorize]
         public async Task<IActionResult> GetMedicalRecord()

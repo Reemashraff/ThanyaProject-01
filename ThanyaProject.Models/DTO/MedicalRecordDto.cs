@@ -21,7 +21,6 @@ namespace ThanyaProject.Models.DTO
             public string? CurrentMedication { get; set; }
             public string Weight { get; set; }
             public string Summery { get; set; }
-            public List<Image> Images { get; set; } 
         //public string ImageUrl { get; set; }
         //public IFormFile FormFile { get; set; }
     }

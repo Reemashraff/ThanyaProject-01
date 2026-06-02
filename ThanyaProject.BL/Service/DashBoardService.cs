@@ -41,7 +41,7 @@ namespace ThanyaProject.BL.Service
                     Long = d.Long,
                     LastUpdate = d.LastUpdate
                 }).ToList(),
-                MedicalRecord = medicalRecord == null ? null : new MedicalRecordDto
+                MedicalRecord = medicalRecord == null ? null : new MedicalRecord
                 {
                     BloodType = medicalRecord.BloodType,
                     ChronicDiseases = medicalRecord.ChronicDiseases,
@@ -49,7 +49,11 @@ namespace ThanyaProject.BL.Service
                     CurrentMedication = medicalRecord.CurrentMedication,
                     Weight = medicalRecord.Weight,
                     Summery = medicalRecord.Summery,
-                    Images = medicalRecord.MedicalImages.ToList()       
+                    MedicalImages = medicalRecord.MedicalImages.Select(x => new Image
+                    {
+                        Id = x.Id,
+                        Url = x.Url
+                    }).ToList()
                 }
             };
         }
