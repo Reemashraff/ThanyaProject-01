@@ -171,6 +171,8 @@ using (var scope = app.Services.CreateScope())
 
     await DbSeed.SeedRolesAsync(roleManager);
     await DbSeed.SeedAdminAsync(userManager);
+    await DbSeed.SeedParamedicAsync(userManager);
+
 }
 
 app.UseSwagger();

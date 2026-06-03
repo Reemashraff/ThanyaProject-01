@@ -48,6 +48,7 @@ namespace ThanyaProject.Controllers
 
 
 
+   
 
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromForm] Registeration model)
@@ -82,7 +83,10 @@ namespace ThanyaProject.Controllers
                 Phone = model.PhoneNumber,
                 Age = DateTime.Now.Year - model.DateOfBirth.Year,
                 Gender = model.Gender,
-                UserType = 1
+                UserType = 1,
+                EmergencyToken = Guid.NewGuid().ToString()
+
+
             };
 
           
@@ -541,6 +545,30 @@ namespace ThanyaProject.Controllers
                     x.Url
                 })
             });
+        }
+        [HttpGet("qr-link")]
+        [Authorize]
+        public async Task<IActionResult> GetQrLink()
+        {
+            var userId =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var user =
+                await _userManager.FindByIdAsync(userId!);
+
+            if (user == null)
+                return NotFound();
+
+            var link =
+                $"https://thanya.netlify.app/auth?token={user.EmergencyToken}";
+
+            return Ok(new
+            {
+                token = user.EmergencyToken,
+                qrLink = link
+            });
+
+       
         }
 
         [HttpGet("me")]

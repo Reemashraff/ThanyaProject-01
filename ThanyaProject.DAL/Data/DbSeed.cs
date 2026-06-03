@@ -80,7 +80,7 @@ namespace ThanyaProject.DAL.Data
                     LastName = "Paramedic",
                     Age = 20,
                     Gender = "Male",
-                    Phone = "0107114103",
+                    Phone = "01071141030",
                     National_ID = 123456789,
                     Address = "Alex",
 

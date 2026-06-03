@@ -11,5 +11,6 @@ namespace ThanyaProject.BL.Service.IService
     {
         Task<UserDashboardDto> GetUserDashboardAsync(int userId);
         Task<AdminDashboardDto> GetAdminDashboardAsync();
+
     }
 }

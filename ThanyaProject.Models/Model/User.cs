@@ -28,6 +28,7 @@ namespace ThanyaProject.Models.Model
         public string? Description { get; set; }
         public int Hospital_ID { get; set; }
         public int UserType { get; set; }
+        public string EmergencyToken { get; set; } = null!;
         public Hospital? Hospital { get; set; }
         public Specialtie? Specialty { get; set; }
         public ICollection<MedicalRecord>? MedicalRecords { get; set; }
